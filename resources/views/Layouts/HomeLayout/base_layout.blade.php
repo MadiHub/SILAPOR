@@ -1330,7 +1330,7 @@
                 <div class="brand-icon"><i class="fa-solid fa-location-dot"></i></div>
                 <div class="brand-text">
                     <h1>SiLapor</h1>
-                    <p>Sistem Laporan Darurat Jakarta</p>
+                    <p>Sistem Laporan Darurat Jakarta </p>
                 </div>
             </div>
             <ul class="nav-links">
@@ -1349,7 +1349,48 @@
             </ul>
             <div class="nav-actions">
                 <button class="btn-notif"><i class="fa-regular fa-bell"></i><span class="badge"></span></button>
-                <button class="btn-lapor header-btn">Buat Laporan</button>
+                <!-- <button class="btn-lapor header-btn">Buat Laporan</button> -->
+                    @auth
+                    @php
+                    $user = auth()->user();
+
+                    $avatarUrl = $user->avatar;
+
+                    if ($avatarUrl && str_contains($avatarUrl, 'googleusercontent.com')) {
+                        $avatarUrl = preg_replace('/=s\d+-c/', '=s200-c', $avatarUrl);
+                    }
+
+                    if (!$avatarUrl) {
+                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=AA0E0E&color=fff&size=100&bold=true';
+                    }
+                    @endphp
+                    <div class="relative">
+                    <button id="user-menu-button" type="button" class="flex items-center space-x-2 focus:outline-none">
+                        <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->name }}" class="w-8 h-8 rounded-full border-2 border-[var(--color-primary-btn)] object-cover cursor-pointer">
+                        <span class="font-medium text-white hidden lg:inline cursor-pointer">{{ $user->name }}</span>
+                        <svg class="w-4 h-4 text-white ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <div id="user-dropdown-menu" class="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-30">
+                        <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                        @if(Auth::check() && Auth::user()->role === 'admin')
+                            <a href="" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                        @endif
+                        <form action="{{ route('auth.logout') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-lg">Logout</button>
+                        </form>
+                    </div>
+                    </div>
+                    @endauth
+
+                    @guest
+                    <a href="{{ route('auth') }}" class="btn-lapor header-btn">
+                    Login
+                    </a>
+                    @endguest
             </div>
         </nav>
     </header>
@@ -1428,5 +1469,32 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
 
+  <script>
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+        });
+      });
+    }
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userDropdownMenu = document.getElementById('user-dropdown-menu');
+    if (userMenuButton && userDropdownMenu) {
+      userMenuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        userDropdownMenu.classList.toggle('hidden');
+      });
+      document.addEventListener('click', (event) => {
+        if (!userMenuButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+          userDropdownMenu.classList.add('hidden');
+        }
+      });
+    }
+  </script>
 </body>
 </html>

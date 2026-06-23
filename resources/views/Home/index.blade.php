@@ -6,7 +6,7 @@
 <section class="hero-section">
         <div class="hero-container">
             <div class="hero-content">
-                <div class="status-pill"><span class="indicator"></span> Sistem Aktif &mdash; Kota Jakarta</div>
+                <div class="status-pill"><span class="indicator"></span> Sistem Aktif &mdash; Bekasi</div>
                 <h2 class="hero-title">Laporkan Masalah<br><span class="highlight">Infrastruktur & Bencana</span> Kota
                 </h2>
                 <p class="hero-desc">Platform digital terintegrasi untuk warga melaporkan kerusakan jalan, jembatan,
@@ -88,7 +88,7 @@
     <section class="map-section-wrapper" id="map-section">
         <div class="section-header">
             <span class="sub-title">PETA INSIDEN REAL-TIME</span>
-            <h2 class="main-title">Pantau Kondisi Kota Jakarta</h2>
+            <h2 class="main-title">Pantau Kondisi Bekasi</h2>
         </div>
 
         <div class="map-filters">
@@ -192,102 +192,102 @@
     <script>
     // --- 1. Mock Data Source - Dataset Utama Aplikasi SiLapor ---
         const datasetInsiden = [
-            {
-                id: "L-01",
-                kategori: "banjir",
-                judul: "Banjir Parah Merendam 3 RT di Perumahan Kemayoran",
-                deskripsi: "Luapan Kali Sentiong merendam setinggi 60 cm. Puluhan KK terdampak, akses jalan terputus. Warga membutuhkan evakuasi darurat perahu karet.",
-                lokasi: "Kemayoran, Jakarta Pusat",
-                koordinat: [-6.1623, 106.8572],
-                status: "aktif",
-                prioritas: "tinggi",
-                mendukung: 428,
-                komentar: 67,
-                dilihat: "2.841",
-                waktu: "2 jam lalu",
-                gambar: "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: "L-02",
-                kategori: "jalan",
-                judul: "Jalan Berlubang Besar Berbahaya di Jl. Gatot Subroto KM 7",
-                deskripsi: "Lubang diameter sekitar 1 meter dengan kedalaman 30 cm. Sudah memakan 3 korban kecelakaan roda dua dalam 2 minggu terakhir. Sangat rawan saat hujan.",
-                lokasi: "Jl. Gatot Subroto, Jakarta Selatan",
-                koordinat: [-6.2301, 106.8241],
-                status: "proses",
-                prioritas: "tinggi",
-                mendukung: 312,
-                komentar: 43,
-                dilihat: "1.956",
-                waktu: "1 hari lalu",
-                gambar: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: "L-03",
-                kategori: "pju",
-                judul: "12 Titik Lampu Jalan Padam Sepanjang 2 Km",
-                deskripsi: "Seluruh PJU di Jl. Diponegoro tidak menyala sejak 5 hari lalu. Rawan kriminalitas pencopetan dan kecelakaan. Sudah dilaporkan namun belum ditindaklanjuti.",
-                lokasi: "Jl. Diponegoro, Jakarta Pusat",
-                koordinat: [-6.1972, 106.8485],
-                status: "aktif",
-                prioritas: "sedang",
-                mendukung: 256,
-                komentar: 31,
-                dilihat: "1.432",
-                waktu: "5 hari lalu",
-                gambar: "https://images.unsplash.com/photo-1509143142926-f9f85a219f1f?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: "L-04",
-                kategori: "jembatan",
-                judul: "Jembatan Kota Intan Retak dan Bergeser 5 Cm",
-                deskripsi: "Struktur bawah jembatan mengalami keretakan horizontal sepanjang 8 meter. Perlu inspeksi teknis segera sebelum terjadi kegagalan struktur total.",
-                lokasi: "Jembatan Kota Intan, Jakarta Barat",
-                koordinat: [-6.1284, 106.8122],
-                status: "proses",
-                prioritas: "tinggi",
-                mendukung: 198,
-                komentar: 29,
-                dilihat: "1.104",
-                waktu: "3 hari lalu",
-                gambar: "https://images.unsplash.com/photo-1545558014-8687977e99a5?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: "L-05",
-                kategori: "longsor",
-                judul: "Longsor Ringan Menutup Separuh Badan Jalan",
-                deskripsi: "Material tanah dari tebing setinggi 3 meter menutup 1 jalur jalan. Arus lalu lintas terganggu serius. Warga mencoba membersihkan secara manual.",
-                lokasi: "Jl. TB Simatupang, Jakarta Selatan",
-                koordinat: [-6.3024, 106.8315],
-                status: "aktif",
-                prioritas: "tinggi",
-                mendukung: 187,
-                komentar: 22,
-                dilihat: "891",
-                waktu: "8 jam lalu",
-                gambar: "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: "L-06",
-                kategori: "sampah",
-                judul: "Sampah Menumpuk 2 Meter di Pasar Kosambi",
-                deskripsi: "Pengangkutan sampah terhenti selama 4 hari. Bau menyengat mengganggu pedagang dan pembeli. Berpotensi menjadi sumber penyakit.",
-                lokasi: "Pasar Tanah Abang, Jakarta Pusat",
-                koordinat: [-6.1865, 106.8182],
-                status: "selesai",
-                prioritas: "sedang",
-                mendukung: 143,
-                komentar: 18,
-                dilihat: "783",
-                waktu: "2 hari lalu",
-                gambar: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&q=80&w=600"
-            }
-        ];
+        {
+            id: "L-01",
+            kategori: "banjir",
+            judul: "Banjir Parah Merendam 3 RT di Harapan Indah",
+            deskripsi: "Curah hujan tinggi menyebabkan genangan hingga 60 cm. Beberapa akses jalan terganggu dan warga membutuhkan bantuan evakuasi.",
+            lokasi: "Harapan Indah, Bekasi",
+            koordinat: [-6.1775, 106.9748],
+            status: "aktif",
+            prioritas: "tinggi",
+            mendukung: 428,
+            komentar: 67,
+            dilihat: "2.841",
+            waktu: "2 jam lalu",
+            gambar: "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-02",
+            kategori: "jalan",
+            judul: "Jalan Berlubang Besar di Jl. Ahmad Yani",
+            deskripsi: "Lubang jalan cukup besar dan membahayakan pengendara roda dua terutama saat malam hari.",
+            lokasi: "Jl. Ahmad Yani, Bekasi Selatan",
+            koordinat: [-6.2416, 106.9924],
+            status: "proses",
+            prioritas: "tinggi",
+            mendukung: 312,
+            komentar: 43,
+            dilihat: "1.956",
+            waktu: "1 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-03",
+            kategori: "pju",
+            judul: "Lampu Jalan Padam Sepanjang Jl. Ir. H. Juanda",
+            deskripsi: "Beberapa titik lampu jalan tidak menyala dan menyebabkan kondisi jalan menjadi gelap.",
+            lokasi: "Jl. Ir. H. Juanda, Bekasi Timur",
+            koordinat: [-6.2478, 107.0141],
+            status: "aktif",
+            prioritas: "sedang",
+            mendukung: 256,
+            komentar: 31,
+            dilihat: "1.432",
+            waktu: "5 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1509143142926-f9f85a219f1f?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-04",
+            kategori: "jembatan",
+            judul: "Jembatan Kali Bekasi Mengalami Keretakan",
+            deskripsi: "Ditemukan retakan pada struktur jembatan yang memerlukan pemeriksaan lebih lanjut.",
+            lokasi: "Kali Bekasi, Bekasi Barat",
+            koordinat: [-6.2298, 106.9782],
+            status: "proses",
+            prioritas: "tinggi",
+            mendukung: 198,
+            komentar: 29,
+            dilihat: "1.104",
+            waktu: "3 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1545558014-8687977e99a5?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-05",
+            kategori: "longsor",
+            judul: "Longsor Ringan di Area Tebing Jalan Chairil Anwar",
+            deskripsi: "Material tanah menutupi sebagian badan jalan sehingga mengganggu lalu lintas.",
+            lokasi: "Jl. Chairil Anwar, Bekasi Timur",
+            koordinat: [-6.2587, 107.0195],
+            status: "aktif",
+            prioritas: "tinggi",
+            mendukung: 187,
+            komentar: 22,
+            dilihat: "891",
+            waktu: "8 jam lalu",
+            gambar: "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-06",
+            kategori: "sampah",
+            judul: "Sampah Menumpuk di Pasar Baru Bekasi",
+            deskripsi: "Sampah belum terangkut selama beberapa hari sehingga mengganggu aktivitas masyarakat.",
+            lokasi: "Pasar Baru Bekasi",
+            koordinat: [-6.2369, 106.9997],
+            status: "selesai",
+            prioritas: "sedang",
+            mendukung: 143,
+            komentar: 18,
+            dilihat: "783",
+            waktu: "2 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&q=80&w=600"
+        }
+    ];
 
         // --- 2. Inisialisasi Peta Leaflet & Layer OpenStreetMap ---
         let map;
         let markerGroup;
-        const defaultLocation = [-6.1950, 106.8250]; // Titik Pusat Jakarta (Bundaran HI)
+        const defaultLocation = [-6.2349, 106.9896]; // Alun-Alun Kota Bekasi
 
         function initMapEngine() {
             map = L.map('map-container', {

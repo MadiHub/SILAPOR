@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
 
             $table->string('name', 100);
+            $table->string('icon', 100);
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
             $table->text('description')->nullable();
-        });
+        }); 
     }
 
     /**
