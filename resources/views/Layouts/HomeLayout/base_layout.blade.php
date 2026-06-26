@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SiLapor - Sistem Laporan Darurat Bekasi')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css">
     <style type="text/tailwindcss">
         @layer base {
         body {
@@ -1287,6 +1289,11 @@
             color: #4a5568;
         }
 
+        .status-pending { background: #eb5757; color: white; }   /* merah */
+        .status-process { background: #f2994a; color: white; }  /* orange */
+        .status-done { background: #27ae60; color: white; }     /* hijau */
+        .status-rejected { background: #999; color: white; }    /* abu */
+
         /* --- Media Queries Responsive Breakpoints System --- */
         @media (max-width: 1024px) {
             .hero-container { grid-template-columns: 1fr; gap: 40px; }
@@ -1308,18 +1315,20 @@
             .footer-top-section { grid-template-columns: 1fr; }
             .footer-bottom-copyright { flex-direction: column; text-align: center; }
         }
+
+
     </style>
 </head>
 <body>
   
     <div class="emergency-bar">
         <div class="eb-container">
-            <span><i class="fa-solid fa-phone-volume"></i> Nomor Darurat Jakarta:</span>
+            <span><i class="fa-solid fa-phone-volume"></i> Nomor Darurat Bekasi:</span>
             <div class="eb-tags">
-                <a href="tel:110" class="eb-tag polisi">Polisi &mdash; 110</a>
-                <a href="tel:113" class="eb-tag pemadam">Pemadam &mdash; 113</a>
-                <a href="tel:118" class="eb-tag ambulans">Ambulans &mdash; 118</a>
-                <a href="tel:112" class="eb-tag darurat">Darurat &mdash; 112</a>
+                <a href="tel:110" class="eb-tag polisi">Polisi | 110</a>
+                <a href="tel:113" class="eb-tag pemadam">Pemadam | 113</a>
+                <a href="tel:118" class="eb-tag ambulans">Ambulan | 118</a>
+                <a href="tel:112" class="eb-tag darurat">Darurat Umum | 112</a>
             </div>
         </div>
     </div>
@@ -1334,21 +1343,21 @@
                 </div>
             </div>
             <ul class="nav-links">
-                <li><a href="#" class="active">Beranda</a></li>
+                <li><a href="{{ route('home.index') }}" class="active">Beranda</a></li>
                 <li class="dropdown">
                     <a href="#">Layanan <i class="fa-solid fa-chevron-down"></i></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#map-section">Lapor Kerusakan</a></li>
+                        <li><a href="{{ route('reports.index') }}">Buat Laporan</a></li>
                         <li><a href="#map-section">Status Bencana</a></li>
                         <li><a href="#map-section">Peta Insiden</a></li>
                     </ul>
                 </li>
-                <li><a href="#laporan-terpopuler">Laporan</a></li>
+                <li><a href="{{ route('reports.me') }}">Laporan</a></li>
                 <li><a href="#">Statistik</a></li>
                 <li><a href="#">Tentang</a></li>
             </ul>
             <div class="nav-actions">
-                <button class="btn-notif"><i class="fa-regular fa-bell"></i><span class="badge"></span></button>
+                <!-- <button class="btn-notif"><i class="fa-regular fa-bell"></i><span class="badge"></span></button> -->
                 <!-- <button class="btn-lapor header-btn">Buat Laporan</button> -->
                     @auth
                     @php
@@ -1397,6 +1406,33 @@
 
   <main>
     @yield('content')
+    <div class="fab-wrapper" id="fabArea">
+        <div class="fab-menu-list" id="fabMenuList">
+            <div class="fab-menu-item">
+                <span class="fab-label">Lapor Darurat</span>
+                <button class="fab-sub-btn red-fab"><i class="fa-solid fa-triangle-exclamation"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Foto Kerusakan</span>
+                <button class="fab-sub-btn orange-fab"><i class="fa-solid fa-camera"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Tandai Lokasi</span>
+                <button class="fab-sub-btn blue-fab"><i class="fa-solid fa-location-crosshairs"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Buat Laporan</span>
+                <a href="{{ route('reports.index') }}" class="fab-sub-btn dark-fab"><i class="fa-regular fa-file-lines"></i></a>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Hubungi 112</span>
+                <button class="fab-sub-btn green-fab"><i class="fa-solid fa-phone"></i></button>
+            </div>
+        </div>
+        <button class="fab-main-trigger" id="fabTrigger">
+            <i class="fa-solid fa-plus icon-plus"></i>
+        </button>
+    </div>
   </main>
 
    <footer class="footer-distributed">
@@ -1430,22 +1466,24 @@
             <div class="footer-links-column">
                 <h3>LAYANAN</h3>
                 <ul>
-                    <li><a href="#">Lapor Kerusakan Jalan</a></li>
-                    <li><a href="#">Status Bencana Alam</a></li>
-                    <li><a href="#">Pantau Banjir</a></li>
-                    <li><a href="#">Laporan Saya</a></li>
-                    <li><a href="#">Statistik Kota</a></li>
+                    <li><a href="{{ route('reports.index') }}">Buat Laporan</a></li>
+                    <li><a href="#map-section">Status Bencana</a></li>
+                    <li><a href="#map-section">Peta Insiden</a></li>
                 </ul>
             </div>
 
             <div class="footer-links-column">
                 <h3>INSTANSI TERKAIT</h3>
                 <ul>
-                    <li><a href="#">Dinas PU Kota Jakarta</a></li>
-                    <li><a href="#">BPBD Kota Jakarta</a></li>
-                    <li><a href="#">Dinas Kebersihan</a></li>
-                    <li><a href="#">PLN Distribusi Jabar</a></li>
-                    <li><a href="#">PDAM Tirtawening</a></li>
+                    @forelse ($departments->take(6) as $dept)
+                        <li><a href="#">{{ $dept->code }}</a></li>
+                    @empty
+                        <li><span class="text-gray-400">Belum ada data instansi</span></li>
+                    @endforelse
+
+                    @if($departments->count() > 6)
+                        <li><a href="/instansi" class="text-blue-400">Lihat Semua →</a></li>
+                    @endif
                 </ul>
             </div>
 
@@ -1469,6 +1507,50 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
 
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      @if(session('error'))
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: '{{ session('error') }}',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+      @endif
+
+      @if(session('success'))
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: '{{ session('success') }}',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+      @endif
+    });
+  </script>
+  <script>
+         // --- 7. Floating Action Button (FAB) Menu Animation System ---
+        const fabTrigger = document.getElementById('fabTrigger');
+        const fabArea = document.getElementById('fabArea');
+
+        fabTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabArea.classList.toggle('open');
+        });
+
+        // Tutup menu FAB jika klik di luar area tombol
+        document.addEventListener('click', () => {
+            fabArea.classList.remove('open');
+        });
+  </script>
   <script>
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');

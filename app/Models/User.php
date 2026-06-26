@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Department::class, 'user_departments');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(ReportComment::class);
+    }
 }

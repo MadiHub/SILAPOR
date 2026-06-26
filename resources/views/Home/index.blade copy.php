@@ -12,8 +12,8 @@
                 <p class="hero-desc">Platform digital terintegrasi untuk warga melaporkan kerusakan jalan, jembatan,
                     saluran air, banjir, dan bencana ringan langsung ke instansi terkait secara real-time.</p>
                 <div class="hero-cta-group">
-                    <a href="{{ route('reports.index') }}" class="btn-cta-primary">Buat Laporan Sekarang <i
-                            class="fa-solid fa-arrow-right"></i></a>
+                    <button class="btn-cta-primary">Buat Laporan Sekarang <i
+                            class="fa-solid fa-arrow-right"></i></button>
                     <a href="#map-section" class="btn-cta-secondary"><i class="fa-solid fa-map-location-dot"></i> Lihat
                         Peta Insiden</a>
                 </div>
@@ -28,6 +28,8 @@
 
                         if (str_contains($category->icon, 'cloud-showers-heavy')) {
                             $cardColor = 'blue-card';
+                            $suffix = 'aktif';
+                            $hasPill = 'active-pill';
                         } elseif (str_contains($category->icon, 'lightbulb')) {
                             $cardColor = 'yellow-card';
                         } elseif (str_contains($category->icon, 'bridge')) {
@@ -36,6 +38,8 @@
                             $cardColor = 'green-card';
                         } elseif (str_contains($category->icon, 'house-chimney-crack') || str_contains($category->icon, 'mountain')) {
                             $cardColor = 'red-card';
+                            $suffix = 'aktif';
+                            $hasPill = 'active-pill';
                         }
                     @endphp
 
@@ -58,32 +62,29 @@
             <div class="stat-box">
                 <div class="sb-icon"><i class="fa-regular fa-file-lines"></i></div>
                 <div class="sb-text">
-                    <h3>{{ number_format($totalReports) }}</h3>
+                    <h3>2.847</h3>
                     <p>Total Laporan</p>
                 </div>
             </div>
-
-            <div class="stat-box">
-                <div class="sb-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <div class="sb-text">
-                    <h3>{{ number_format($processReports) }}</h3>
-                    <p>Diproses</p>
-                </div>
-            </div>
-
             <div class="stat-box">
                 <div class="sb-icon"><i class="fa-regular fa-circle-check"></i></div>
                 <div class="sb-text">
-                    <h3>{{ number_format($doneReports) }}</h3>
+                    <h3>2.391</h3>
                     <p>Terselesaikan</p>
                 </div>
             </div>
-
+            <div class="stat-box">
+                <div class="sb-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="sb-text">
+                    <h3>312</h3>
+                    <p>Aktif Ditangani</p>
+                </div>
+            </div>
             <div class="stat-box">
                 <div class="sb-icon"><i class="fa-solid fa-users"></i></div>
                 <div class="sb-text">
-                    <h3>{{ number_format($totalUsers) }}</h3>
-                    <p>Total Warga</p>
+                    <h3>18.640</h3>
+                    <p>Warga Terlayani</p>
                 </div>
             </div>
         </div>
@@ -97,17 +98,16 @@
 
         <div class="map-filters">
             <div class="filter-buttons">
-                <button class="btn-filter active" data-category="semua">
-                    <i class="fa-solid fa-book-open"></i> Semua
-                </button>
-
-                @foreach ($problem_categories as $category)
-                    <button class="btn-filter" data-category="{{ $category->name }}">
-                        <i class="{{ $category->icon }}"></i>
-                        {{ $category->name }}
-                        ({{ $category->reports_count }})
-                    </button>
-                @endforeach
+                <button class="btn-filter active" data-category="semua"><i class="fa-solid fa-book-open"></i>
+                    Semua</button>
+                <button class="btn-filter" data-category="banjir"><i class="fa-solid fa-water"></i> Banjir</button>
+                <button class="btn-filter" data-category="jalan"><i class="fa-solid fa-road"></i> Jalan</button>
+                <button class="btn-filter" data-category="pju"><i class="fa-regular fa-lightbulb"></i> PJU</button>
+                <button class="btn-filter" data-category="sampah"><i class="fa-regular fa-trash-can"></i>
+                    Sampah</button>
+                <button class="btn-filter" data-category="jembatan"><i class="fa-solid fa-bridge"></i> Jembatan</button>
+                <button class="btn-filter" data-category="longsor"><i class="fa-solid fa-hill-rockslide"></i>
+                    Longsor</button>
             </div>
             <div class="status-legend">
                 <span class="legend-item"><span class="dot red"></span> Aktif</span>
@@ -137,14 +137,14 @@
                 <p class="section-desc">Dukung laporan warga lain dengan memberikan suara untuk mempercepat penanganan.
                 </p>
             </div>
-            <span class="refresh-indicator"><i class="fa-solid fa-wave-square"></i></span>
+            <span class="refresh-indicator"><i class="fa-solid fa-wave-square"></i> Diperbarui setiap 5 menit</span>
         </div>
 
         <div class="feed-tabs">
-            <button class="tab-btn active" data-status="all">Semua</button>
-            <button class="tab-btn" data-status="active">Aktif</button>
-            <button class="tab-btn" data-status="process">Diproses</button>
-            <button class="tab-btn" data-status="done">Selesai</button>
+            <button class="tab-btn active" data-status="semua">Semua</button>
+            <button class="tab-btn" data-status="aktif">Aktif</button>
+            <button class="tab-btn" data-status="proses">Diproses</button>
+            <button class="tab-btn" data-status="selesai">Selesai</button>
         </div>
 
         <div class="reports-grid" id="reportsGridContainer">
@@ -154,6 +154,34 @@
             <button class="btn-load-more">Lihat Semua Laporan <i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </section>
+
+    <div class="fab-wrapper" id="fabArea">
+        <div class="fab-menu-list" id="fabMenuList">
+            <div class="fab-menu-item">
+                <span class="fab-label">Lapor Darurat</span>
+                <button class="fab-sub-btn red-fab"><i class="fa-solid fa-triangle-exclamation"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Foto Kerusakan</span>
+                <button class="fab-sub-btn orange-fab"><i class="fa-solid fa-camera"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Tandai Lokasi</span>
+                <button class="fab-sub-btn blue-fab"><i class="fa-solid fa-location-crosshairs"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Buat Laporan</span>
+                <button class="fab-sub-btn dark-fab"><i class="fa-regular fa-file-lines"></i></button>
+            </div>
+            <div class="fab-menu-item">
+                <span class="fab-label">Hubungi 112</span>
+                <button class="fab-sub-btn green-fab"><i class="fa-solid fa-phone"></i></button>
+            </div>
+        </div>
+        <button class="fab-main-trigger" id="fabTrigger">
+            <i class="fa-solid fa-plus icon-plus"></i>
+        </button>
+    </div>
 
     <div class="modal-overlay" id="reportModal">
         <div class="modal-box">
@@ -166,99 +194,100 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
     <script>
-        const reportsFromBackend = @json($reports);
-        console.log(reportsFromBackend);
-    </script>
-
-    <script>
-
-        function mapStatusToUI(status) {
-            if (status === 'active') return 'aktif';     
-            if (status === 'process') return 'proses';
-            if (status === 'done') return 'selesai';
-            if (status === 'rejected') return 'ditolak';
+    // --- 1. Mock Data Source - Dataset Utama Aplikasi SiLapor ---
+        const datasetInsiden = [
+        {
+            id: "L-01",
+            kategori: "banjir",
+            judul: "Banjir Parah Merendam 3 RT di Harapan Indah",
+            deskripsi: "Curah hujan tinggi menyebabkan genangan hingga 60 cm. Beberapa akses jalan terganggu dan warga membutuhkan bantuan evakuasi.",
+            lokasi: "Harapan Indah, Bekasi",
+            koordinat: [-6.1775, 106.9748],
+            status: "aktif",
+            prioritas: "tinggi",
+            mendukung: 428,
+            komentar: 67,
+            dilihat: "2.841",
+            waktu: "2 jam lalu",
+            gambar: "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-02",
+            kategori: "jalan",
+            judul: "Jalan Berlubang Besar di Jl. Ahmad Yani",
+            deskripsi: "Lubang jalan cukup besar dan membahayakan pengendara roda dua terutama saat malam hari.",
+            lokasi: "Jl. Ahmad Yani, Bekasi Selatan",
+            koordinat: [-6.2416, 106.9924],
+            status: "proses",
+            prioritas: "tinggi",
+            mendukung: 312,
+            komentar: 43,
+            dilihat: "1.956",
+            waktu: "1 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-03",
+            kategori: "pju",
+            judul: "Lampu Jalan Padam Sepanjang Jl. Ir. H. Juanda",
+            deskripsi: "Beberapa titik lampu jalan tidak menyala dan menyebabkan kondisi jalan menjadi gelap.",
+            lokasi: "Jl. Ir. H. Juanda, Bekasi Timur",
+            koordinat: [-6.2478, 107.0141],
+            status: "aktif",
+            prioritas: "sedang",
+            mendukung: 256,
+            komentar: 31,
+            dilihat: "1.432",
+            waktu: "5 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1509143142926-f9f85a219f1f?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-04",
+            kategori: "jembatan",
+            judul: "Jembatan Kali Bekasi Mengalami Keretakan",
+            deskripsi: "Ditemukan retakan pada struktur jembatan yang memerlukan pemeriksaan lebih lanjut.",
+            lokasi: "Kali Bekasi, Bekasi Barat",
+            koordinat: [-6.2298, 106.9782],
+            status: "proses",
+            prioritas: "tinggi",
+            mendukung: 198,
+            komentar: 29,
+            dilihat: "1.104",
+            waktu: "3 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1545558014-8687977e99a5?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-05",
+            kategori: "longsor",
+            judul: "Longsor Ringan di Area Tebing Jalan Chairil Anwar",
+            deskripsi: "Material tanah menutupi sebagian badan jalan sehingga mengganggu lalu lintas.",
+            lokasi: "Jl. Chairil Anwar, Bekasi Timur",
+            koordinat: [-6.2587, 107.0195],
+            status: "aktif",
+            prioritas: "tinggi",
+            mendukung: 187,
+            komentar: 22,
+            dilihat: "891",
+            waktu: "8 jam lalu",
+            gambar: "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            id: "L-06",
+            kategori: "sampah",
+            judul: "Sampah Menumpuk di Pasar Baru Bekasi",
+            deskripsi: "Sampah belum terangkut selama beberapa hari sehingga mengganggu aktivitas masyarakat.",
+            lokasi: "Pasar Baru Bekasi",
+            koordinat: [-6.2369, 106.9997],
+            status: "selesai",
+            prioritas: "sedang",
+            mendukung: 143,
+            komentar: 18,
+            dilihat: "783",
+            waktu: "2 hari lalu",
+            gambar: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&q=80&w=600"
         }
-
-        function formatTimeAgo(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-
-            const diff = Math.floor((now - date) / 1000); // detik
-
-            const menit = Math.floor(diff / 60);
-            const jam = Math.floor(diff / 3600);
-            const hari = Math.floor(diff / 86400);
-
-            if (diff < 60) return 'Baru saja';
-            if (menit < 60) return `${menit} menit lalu`;
-            if (jam < 24) return `${jam} jam lalu`;
-            if (hari < 7) return `${hari} hari lalu`;
-
-            return date.toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-        }
-
-        // --- 1. Mock Data Source - Dataset Utama Aplikasi SiLapor ---
-        const datasetInsiden = reportsFromBackend.map(item => ({
-            id: item.id,
-            kategori: item.category?.name ?? 'umum',
-            icon: item.category?.icon ?? 'umum',
-            judul: item.title,
-            deskripsi: item.description,
-            lokasi: item.address ?? 'Lokasi tidak diketahui',
-            koordinat: [
-                parseFloat(item.latitude) || 0,
-                parseFloat(item.longitude) || 0
-            ],
-            status: item.status,
-            votes_count: item.votes_count ?? 0,
-            is_voted: item.is_voted ?? false,
-            komentar: item.comments_count ?? 0,
-            dilihat: 0,
-            waktu: formatTimeAgo(item.created_at),
-            gambar: item.images?.map(img => `/storage/${img.image_url}`) ?? [],
-            thumbnail: item.images?.[0]?.image_url
-                ? `/storage/${item.images[0].image_url}`
-                : 'https://via.placeholder.com/600x400'
-        }));
-        console.log(datasetInsiden)
-
-        // status list insedent
-        function getStatusConfig(status) {
-            switch (status) {
-                case 'active':
-                    return {
-                        label: 'Aktif',
-                        class: 'bg-red-500/10 text-red-400'
-                    };
-                case 'process':
-                    return {
-                        label: 'Diproses',
-                        class: 'bg-orange-500/10 text-orange-400'
-                    };
-                case 'done':
-                    return {
-                        label: 'Selesai',
-                        class: 'bg-green-500/10 text-green-400'
-                    };
-                case 'rejected':
-                    return {
-                        label: 'Ditolak',
-                        class: 'bg-gray-500/10 text-gray-400'
-                    };
-                default:
-                    return {
-                        label: 'Unknown',
-                        class: 'bg-gray-500/10 text-gray-400'
-                    };
-            }
-        }
+    ];
 
         // --- 2. Inisialisasi Peta Leaflet & Layer OpenStreetMap ---
         let map;
@@ -281,10 +310,9 @@
 
         // Fungsi Menentukan Warna Pin Marker Peta Sesuai Status Laporan
         function getMarkerColorByStatus(status) {
-            if (status === 'active') return '#eb5757';   // Merah (Aktif)
-            if (status === 'process') return '#f2994a';   // Orange
-            if (status === 'done') return '#27ae60';      // Hijau
-            return '#999'; // rejected / default
+            if (status === 'aktif') return '#eb5757';   // Merah
+            if (status === 'proses') return '#f2994a';  // Orange
+            return '#27ae60';                           // Hijau
         }
 
         // Render Marker di Peta Berdasarkan Filter Kategori
@@ -309,19 +337,11 @@
                 const marker = L.marker(item.koordinat, { icon: customIcon }).addTo(markerGroup);
                 
                 // Popup saat marker di klik
-              marker.bindPopup(`
+                marker.bindPopup(`
                     <div style="font-family:'Segoe UI', sans-serif; padding:2px;">
-                        <h4 style="margin:0 0 4px 0; color:#0b2240; font-size:13px;">
-                            ${item.judul}
-                        </h4>
-                        <p style="margin:0 0 6px 0; font-size:11px; color:#666;">
-                            ${item.lokasi}
-                        </p>
-                        <button 
-                            onclick="bukaModalDetailLaporan(${item.id})"
-                            style="background:#133a68; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; width:100%;">
-                            Lihat Detail
-                        </button>
+                        <h4 style="margin:0 0 4px 0; color:#0b2240; font-size:13px;">${item.judul}</h4>
+                        <p style="margin:0 0 6px 0; font-size:11px; color:#666;">${item.lokasi}</p>
+                        <button onclick="bukaModalDetailLaporan('${item.id}')" style="background:#133a68; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; width:100%;">Lihat Detail</button>
                     </div>
                 `);
             });
@@ -345,7 +365,6 @@
             }
 
             filteredData.forEach(item => {
-                const status = getStatusConfig(item.status);
                 const div = document.createElement('div');
                 div.className = 'incident-item';
                 div.setAttribute('data-id', item.id);
@@ -353,9 +372,7 @@
                     <div class="incident-item-title">${item.judul}</div>
                     <div class="incident-item-meta"><i class="fa-solid fa-location-dot"></i> ${item.lokasi}</div>
                     <div class="incident-status-row">
-                        <span class="status-badge px-2 py-1 text-xs rounded-full ${status.class}">
-                             ${status.label.toUpperCase()}
-                        </span>    
+                        <span class="status-badge ${item.status}">${item.status.toUpperCase()}</span>
                         <span class="incident-time">${item.waktu}</span>
                     </div>
                 `;
@@ -383,57 +400,38 @@
             const container = document.getElementById('reportsGridContainer');
             container.innerHTML = '';
 
-            function mapStatusToUI(status) {
-                if (status === 'active') return 'Aktif';
-                if (status === 'process') return 'Diproses';
-                if (status === 'done') return 'Selesai';
-                if (status === 'rejected') return 'Ditolak';
-                return status;
-            }
-
             datasetInsiden.forEach((item, index) => {
                 const card = document.createElement('div');
-
-                // 🔥 simpan status asli dari DB
                 card.className = 'report-card';
-                card.dataset.status = item.status;
-
                 card.innerHTML = `
                     <div class="card-img-wrapper">
-                        <img src="${item.thumbnail}" alt="Gambar Insiden" class="card-img-placeholder">
+                        <img src="${item.gambar}" alt="Gambar Insiden" class="card-img-placeholder">
                         <div class="card-badges">
-                            <span class="badge-status-dot status-${item.status}">
-                                ${mapStatusToUI(item.status)}
-                            </span>
+                            <span class="badge-status-dot ${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span>
+                            <span class="badge-priority ${item.prioritas}">Prioritas ${item.prioritas}</span>
                         </div>
                     </div>
-
                     <div class="card-body">
                         <div class="card-category">${item.kategori}</div>
                         <div class="card-title">${item.judul}</div>
                         <p class="card-text">${item.deskripsi}</p>
-
-                        <div class="card-location">
-                            <i class="fa-solid fa-location-dot"></i> ${item.lokasi}
-                        </div>
-
-                        <div class="card-footer-metrics" data-id="${item.id}">
+                        <div class="card-location"><i class="fa-solid fa-location-dot"></i> ${item.lokasi}</div>
+                        <div class="card-footer-metrics">
                             <div class="metrics-left-group">
-                                <button class="metric-item-btn btn-upvote ${item.is_voted ? 'upvoted' : ''}" 
-                                    onclick="voteReport(${item.id}, this)">
-
-                                    <i class="fa-solid fa-thumbs-up"></i> 
-                                    <span class="vote-count">${item.votes_count}</span>
+                                <button class="metric-item-btn btn-upvote" data-id="${item.id}">
+                                    <i class="fa-regular fa-thumbs-up"></i> <span class="vote-count">${item.mendukung}</span>
                                 </button>
+                                <span class="metric-item-btn"><i class="fa-regular fa-comment"></i> ${item.komentar}</span>
+                                <span class="metric-item-btn"><i class="fa-regular fa-eye"></i> ${item.dilihat}</span>
                             </div>
-
                             <span class="metric-time">${item.waktu}</span>
                         </div>
                     </div>
                 `;
 
-                // 🔥 klik card → buka modal
+                // Penanganan klik card utama untuk buka detail modal
                 card.addEventListener('click', (e) => {
+                    // Cegah trigger jika menekan tombol upvote
                     if (e.target.closest('.btn-upvote')) return;
                     bukaModalDetailLaporan(item.id);
                 });
@@ -442,210 +440,103 @@
             });
         }
 
+        // --- 5. Logika Interaksi Upvote Button ---
+        function setupUpvoteHandlers() {
+            document.addEventListener('click', function(e) {
+                const upvoteBtn = e.target.closest('.btn-upvote');
+                if (upvoteBtn) {
+                    e.stopPropagation(); // Mencegah bubbling klik ke card
+                    const id = upvoteBtn.getAttribute('data-id');
+                    const dataObj = datasetInsiden.find(item => item.id === id);
+                    
+                    if (upvoteBtn.classList.contains('upvoted')) {
+                        upvoteBtn.classList.remove('upvoted');
+                        dataObj.mendukung--;
+                        upvoteBtn.querySelector('i').className = 'fa-regular fa-thumbs-up';
+                    } else {
+                        upvoteBtn.classList.add('upvoted');
+                        dataObj.mendukung++;
+                        upvoteBtn.querySelector('i').className = 'fa-solid fa-thumbs-up';
+                    }
+                    upvoteBtn.querySelector('.vote-count').textContent = dataObj.mendukung;
+                }
+            });
+        }
+
         // --- 6. Logika Modal Box System Open & Close ---
         const modalOverlay = document.getElementById('reportModal');
         const closeModalBtn = document.getElementById('closeModal');
         const modalTargetBody = document.getElementById('modalTargetBody');
 
-        let swiperInstance;
-
         function bukaModalDetailLaporan(id) {
             const item = datasetInsiden.find(obj => obj.id === id);
             if (!item) return;
 
-            const images = item.gambar.length
-                ? item.gambar
-                : ['https://via.placeholder.com/600x400'];
-
-            const status = getStatusConfig(item.status);
-
             modalTargetBody.innerHTML = `
-                <div class="swiper mySwiper rounded-xl overflow-hidden mb-4">
-                    <div class="swiper-wrapper">
-                        ${images.map(img => `
-                            <div class="swiper-slide">
-                                <img src="${img}" class="modal-img w-full h-[260px] object-cover">
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="swiper-pagination"></div>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
-                    <h3 class="modal-title" style="margin:0;">
-                        ${item.judul}
-                    </h3>
-
-                    <span class="status-badge px-3 py-1 text-xs rounded-full whitespace-nowrap ${status.class}">
-                        ${status.label}
-                    </span>
-                </div>
-
-                <div class="modal-meta-row" style="margin-top:10px; display:flex; flex-direction:column; gap:6px; font-size:13px; color:#aaa;">
-                    <span><i class="${item.icon}"></i> ${item.kategori.toUpperCase()}</span>
+                <img src="${item.gambar}" class="modal-img" alt="Detail">
+                <h3 class="modal-title">${item.judul}</h3>
+                <div class="modal-meta-row">
+                    <span><i class="fa-solid fa-folder"></i> Kategori: ${item.kategori.toUpperCase()}</span>
                     <span><i class="fa-solid fa-location-dot"></i> ${item.lokasi}</span>
                     <span><i class="fa-solid fa-clock"></i> ${item.waktu}</span>
                 </div>
-
-                <p class="modal-desc" style="margin-top:15px; line-height:1.6;">
-                    ${item.deskripsi}
-                </p>
-
-                <div style="margin-top:25px; display:flex; gap:10px;" data-id="${item.id}">
-                    <button class="btn-lapor ${item.is_voted ? '' : 'not-voted'}" 
-                        onclick="voteReport(${item.id}, this)">
-
-                        <i class="fa-solid fa-thumbs-up"></i> 
-                        Dukung 
-                        (<span class="vote-count">${item.votes_count}</span>)
-                    </button>
-
-                    <button class="btn-load-more" 
-                        style="margin-top:0;"
-                        onclick="document.getElementById('reportModal').classList.remove('open')">
-                        Tutup
-                    </button>
+                <div style="margin-bottom: 15px;">
+                    <span class="status-badge ${item.status}" style="display:inline-block; margin-right:8px;">STATUS: ${item.status.toUpperCase()}</span>
+                    <span class="badge-priority ${item.prioritas}">PRIORITAS ${item.prioritas.toUpperCase()}</span>
+                </div>
+                <p class="modal-desc">${item.deskripsi}</p>
+                <div style="margin-top:25px; display:flex; gap:10px;">
+                    <button class="btn-lapor" style="flex:1;" onclick="alert('Terima kasih, dukungan Anda berhasil ditambahkan!')"><i class="fa-solid fa-thumbs-up"></i> Dukung Laporan Ini</button>
+                    <button class="btn-load-more" style="margin-top:0;" onclick="document.getElementById('reportModal').classList.remove('open')">Tutup</button>
                 </div>
             `;
-
             modalOverlay.classList.add('open');
-
-            // 🔥 FIX BUG SWIPER DOUBLE
-            if (swiperInstance) {
-                swiperInstance.destroy(true, true);
-            }
-
-            swiperInstance = new Swiper('.mySwiper', {
-                loop: true,
-                spaceBetween: 10,
-
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-
-                autoplay: {
-                    delay: 3000,
-                    disableOnInteraction: false,
-                },
-            });
-        }
-        
-       function updateVoteUI(id, data) {
-            document.querySelectorAll(`[data-id="${id}"]`).forEach(wrapper => {
-
-                const btn = wrapper.querySelector('.btn-upvote, .btn-lapor');
-                if (!btn) return;
-
-                // update angka
-                const countEl = btn.querySelector('.vote-count');
-                if (countEl) countEl.textContent = data.votes;
-
-                // 🔥 CARD
-                if (btn.classList.contains('btn-upvote')) {
-                    btn.classList.toggle('upvoted', data.status === 'voted');
-                }
-
-                // 🔥 MODAL
-                if (btn.classList.contains('btn-lapor')) {
-                    btn.classList.toggle('not-voted', data.status !== 'voted');
-                }
-            });
         }
 
-        function refreshUI(id) {
-            const item = datasetInsiden.find(x => x.id === id);
-            if (!item) return;
+        closeModalBtn.addEventListener('click', () => modalOverlay.classList.remove('open'));
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) modalOverlay.classList.remove('open');
+        });
 
-            // 🔥 UPDATE CARD
-            document.querySelectorAll(`.card-footer-metrics[data-id="${id}"]`)
-                .forEach(el => {
-                    const btn = el.querySelector('.btn-upvote');
-                    if (!btn) return;
-
-                    btn.classList.toggle('upvoted', item.is_voted);
-                    btn.querySelector('.vote-count').textContent = item.votes_count;
-                });
-
-            // 🔥 UPDATE MODAL (kalau lagi dibuka)
-            const modalBtn = document.querySelector(`.btn-lapor[onclick*="${id}"]`);
-            if (modalBtn) {
-                modalBtn.classList.toggle('not-voted', !item.is_voted);
-                modalBtn.querySelector('.vote-count').textContent = item.votes_count;
-            }
-        }
-
-        async function voteReport(id, btn) {
-        try {
-            const res = await fetch(`/reports/${id}/vote`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const data = await res.json();
-
-            // 🔥 UPDATE DATASET (INI SOURCE OF TRUTH)
-            const item = datasetInsiden.find(x => x.id === id);
-            if (item) {
-                item.votes_count = data.votes;
-                item.is_voted = data.status === 'voted';
-            }
-
-            // 🔥 UPDATE CARD + MODAL SEKALIGUS
-            refreshUI(id);
-
-        } catch (err) {
-            console.error(err);
-        }
-    }
         // --- 7. Floating Action Button (FAB) Menu Animation System ---
-        // const fabTrigger = document.getElementById('fabTrigger');
-        // const fabArea = document.getElementById('fabArea');
+        const fabTrigger = document.getElementById('fabTrigger');
+        const fabArea = document.getElementById('fabArea');
 
-        // fabTrigger.addEventListener('click', (e) => {
-        //     e.stopPropagation();
-        //     fabArea.classList.toggle('open');
-        // });
+        fabTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabArea.classList.toggle('open');
+        });
 
-        // // Tutup menu FAB jika klik di luar area tombol
-        // document.addEventListener('click', () => {
-        //     fabArea.classList.remove('open');
-        // });
+        // Tutup menu FAB jika klik di luar area tombol
+        document.addEventListener('click', () => {
+            fabArea.classList.remove('open');
+        });
 
         // --- 8. Setup Map Filter Event Listeners ---
         function setupFilterListeners() {
             const filterButtons = document.querySelectorAll('.btn-filter');
-
             filterButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
-
+                btn.addEventListener('click', function() {
                     filterButtons.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-
-                    const category = this.dataset.category; // 🔥 lebih clean dari getAttribute
-
+                    
+                    const category = this.getAttribute('data-category');
                     renderMapMarkers(category);
                     renderSideIncidentPanel(category);
                 });
             });
 
-            document.getElementById('refreshMap').addEventListener('click', function () {
-
+            // Refresh Map Button Click Action Trigger
+            document.getElementById('refreshMap').addEventListener('click', function() {
                 this.style.transform = 'rotate(360deg)';
                 setTimeout(() => this.style.transform = 'none', 500);
-
-                document.querySelectorAll('.btn-filter')
-                    .forEach(b => b.classList.remove('active'));
-
-                document.querySelector('[data-category="semua"]')
-                    .classList.add('active');
-
+                
+                // Reset filter ke Semua
+                document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-category="semua"]').classList.add('active');
+                
                 renderMapMarkers('semua');
                 renderSideIncidentPanel('semua');
-
                 map.setView(defaultLocation, 12, { animate: true });
             });
         }
@@ -661,13 +552,14 @@
                         reportFilterButtons.forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
                         
-                        let targetStatus = this.dataset.status;
-                        // if (targetStatus === 'diproses') targetStatus = 'proses';
+                        let targetStatus = this.textContent.trim().toLowerCase();
+                        if (targetStatus === 'diproses') targetStatus = 'proses';
                         const reportCards = document.querySelectorAll('#reportsGridContainer .report-card');
                         reportCards.forEach(card => {
-                            const status = card.dataset.status; 
-
-                            if (targetStatus === 'all' || status === targetStatus) {
+                            const statusBadge = card.querySelector('.badge-status-dot');
+                            if (!statusBadge) return;
+                            let cardStatus = statusBadge.textContent.trim().toLowerCase();
+                            if (targetStatus === 'semua' || cardStatus === targetStatus) {
                                 card.style.display = '';
                             } else {
                                 card.style.display = 'none';
@@ -684,9 +576,10 @@
             renderMapMarkers('semua');
             renderSideIncidentPanel('semua');
             renderPopularReportsGrid();
+            setupUpvoteHandlers();
             setupFilterListeners();
             setupPopularFilters();
-            // setupFloatingActionButton();
+            setupFloatingActionButton();
         });
     </script>
 @endsection

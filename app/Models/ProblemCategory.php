@@ -10,6 +10,7 @@ class ProblemCategory extends Model
 
     protected $fillable = [
         'name',
+        'icon',
         'department_id',
         'description'
     ];

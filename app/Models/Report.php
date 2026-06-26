@@ -48,4 +48,9 @@ class Report extends Model
     {
         return $this->hasMany(ReportUpdate::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(ReportComment::class);
+    }
 }

@@ -25,8 +25,9 @@ return new class extends Migration
             $table->decimal('longitude', 11, 8);
             $table->text('address')->nullable();
 
-            $table->enum('status', ['pending', 'process', 'done', 'rejected'])->default('pending');
+            $table->enum('status', ['active', 'process', 'done', 'rejected'])->default('active');
             $table->integer('votes_count')->default(0);
+            $table->integer('views')->default(0);
 
             $table->timestamps();
         });

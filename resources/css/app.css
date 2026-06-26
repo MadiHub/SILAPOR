@@ -248,6 +248,20 @@ body {
     transform: translateY(0);
 }
 
+/* 🔻 override kalau BELUM vote */
+.btn-lapor.not-voted {
+    background-color: #2a2a2a;
+    color: #aaa;
+    box-shadow: none;
+}
+
+/* hover khusus belum vote */
+.btn-lapor.not-voted:hover {
+    background-color: #333;
+    transform: none;
+    box-shadow: none;
+}
+
 /* --- 2. Hero Presentation Section Architecture --- */
 .hero-section {
     background: radial-gradient(circle at top right, #112d52 0%, var(--primary-blue) 100%);
@@ -825,7 +839,9 @@ body {
 
 .badge-status-dot.aktif::before { background-color: var(--sys-red); }
 .badge-status-dot.proses::before { background-color: var(--sys-orange); }
-.badge-status-dot.selesai::before { background-color: var(--sys-green); }
+.badge-status-dot.selesai::before { background-color: var(--sys-green); } */
+
+
 
 .badge-priority {
     font-size: 10px;

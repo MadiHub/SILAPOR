@@ -48,6 +48,58 @@ class UserSeeder extends Seeder
             ]);
         }
 
+        $categories = [
+            [
+                'name' => 'Kerusakan Jalan',
+                'icon' => 'fa-solid fa-road',
+                'department_code' => 'DBMSDA',
+                'description' => 'Jalan berlubang, rusak, atau tidak layak pakai'
+            ],
+            [
+                'name' => 'Banjir & Genangan',
+                'icon' => 'fa-solid fa-cloud-showers-heavy',
+                'department_code' => 'DLH',
+                'description' => 'Banjir, genangan, atau saluran air tersumbat'
+            ],
+            [
+                'name' => 'PJU Mati',
+                'icon' => 'fa-solid fa-lightbulb',
+                'department_code' => 'DISHUB',
+                'description' => 'Lampu penerangan jalan umum tidak menyala'
+            ],
+            [
+                'name' => 'Jembatan Rusak',
+                'icon' => 'fa-solid fa-bridge',
+                'department_code' => 'DBMSDA',
+                'description' => 'Kerusakan pada jembatan atau struktur penyeberangan'
+            ],
+            [
+                'name' => 'Sampah Menumpuk',
+                'icon' => 'fa-solid fa-trash',
+                'department_code' => 'DLH',
+                'description' => 'Penumpukan sampah di area publik'
+            ],
+            [
+                'name' => 'Longsor Ringan',
+                'icon' => 'fa-solid fa-mountain',
+                'department_code' => 'DLH',
+                'description' => 'Longsor skala kecil di wilayah tertentu'
+            ],
+        ];
+
+        foreach ($categories as $category) {
+            $departmentId = isset($departmentIds[$category['department_code']]) 
+                ? $departmentIds[$category['department_code']] 
+                : null;
+
+            DB::table('problem_categories')->insert([
+                'department_id' => $departmentId, 
+                'name'          => $category['name'],
+                'icon'          => $category['icon'],
+                'description'   => $category['description'],
+            ]);
+        }
+
         // 🔹 ADMIN
         DB::table('users')->insert([
             'name' => 'Megi',
