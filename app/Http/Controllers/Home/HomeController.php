@@ -36,7 +36,8 @@ class HomeController extends Controller
             'images',
             'category',
             'user',
-            'comments'
+            'comments',
+            'updates'
         ])
         ->withCount(['comments', 'votes']) // 🔥 TAMBAH INI
         ->orderByDesc('votes_count')
@@ -61,6 +62,13 @@ class HomeController extends Controller
                 'category' => $report->category,
                 'images' => $report->images,
                 'created_at' => $report->created_at,
+                'updates' => $report->updates->map(function ($update) {
+                    return [
+                        'note' => $update->note,
+                        'status' => $update->status,
+                        'created_at' => $update->created_at,
+                    ];
+                }),
             ];
         });
 

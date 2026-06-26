@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class WargaMiddleware
+class PemdaMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,16 +16,12 @@ class WargaMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // dd(Auth::user());
         if (!Auth::check()) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Harus login dulu!'
-                ], 401);
-            }
             return redirect('/auth')->with('error', 'Harus login dulu!');
         }
 
-        if (Auth::user()->role !== 'warga') {
+        if (Auth::user()->role !== 'pemda') {
             return redirect('/')->with('error', 'Akses ditolak!');
         }
 

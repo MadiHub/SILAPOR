@@ -1339,7 +1339,7 @@
                 <div class="brand-icon"><i class="fa-solid fa-location-dot"></i></div>
                 <div class="brand-text">
                     <h1>SiLapor</h1>
-                    <p>Sistem Laporan Darurat Jakarta </p>
+                    <p>Sistem Laporan Darurat Bekasi </p>
                 </div>
             </div>
             <ul class="nav-links">
@@ -1370,7 +1370,7 @@
                     }
 
                     if (!$avatarUrl) {
-                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=AA0E0E&color=fff&size=100&bold=true';
+                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=133a68&color=fff&size=100&bold=true';
                     }
                     @endphp
                     <div class="relative">
@@ -1446,14 +1446,14 @@
                     </div>
                 </div>
                 <p class="footer-about-text">
-                    Platform resmi Pemerintah Kota Jakarta untuk pelaporan dan pemantauan kerusakan infrastruktur,
+                    Platform resmi Pemerintah Kota Bekasi untuk pelaporan dan pemantauan kerusakan infrastruktur,
                     bencana alam ringan, dan gangguan layanan publik secara real-time.
                 </p>
                 <div class="footer-contact-details">
-                    <p><i class="fa-solid fa-location-arrow"></i> Jl. Medan Merdeka Selatan No.8-9, Jakarta Pusat, DKI
-                        Jakarta 10110</p>
+                    <p><i class="fa-solid fa-location-arrow"></i> Jl. Medan Merdeka Selatan No.8-9, Bekasi Pusat, DKI
+                        Bekasi 10110</p>
                     <p><i class="fa-solid fa-phone"></i> (021) 1500177</p>
-                    <p><i class="fa-solid fa-envelope"></i> silapor@jakarta.go.id</p>
+                    <p><i class="fa-solid fa-envelope"></i> silapor@Bekasi.go.id</p>
                 </div>
                 <div class="footer-social-medias">
                     <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
@@ -1500,8 +1500,8 @@
         </div>
 
         <div class="footer-bottom-copyright">
-            <p>&copy; 2026 SiLapor &mdash; Pemerintah Kota Jakarta. Hak Cipta Dilindungi.</p>
-            <p>Dibuat dengan <span class="heart-icon">&hearts;</span> untuk warga Jakarta</p>
+            <p>&copy; 2026 SiLapor &mdash; Pemerintah Kota Bekasi. Hak Cipta Dilindungi.</p>
+            <p>Dibuat dengan <span class="heart-icon">&hearts;</span> untuk warga Bekasi</p>
         </div>
     </footer>
 

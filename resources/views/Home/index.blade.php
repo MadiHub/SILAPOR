@@ -220,6 +220,7 @@
             votes_count: item.votes_count ?? 0,
             is_voted: item.is_voted ?? false,
             komentar: item.comments_count ?? 0,
+            updates: item.updates ?? [],
             dilihat: 0,
             waktu: formatTimeAgo(item.created_at),
             gambar: item.images?.map(img => `/storage/${img.image_url}`) ?? [],
@@ -460,6 +461,7 @@
             const status = getStatusConfig(item.status);
 
             modalTargetBody.innerHTML = `
+                <!-- SLIDER -->
                 <div class="swiper mySwiper rounded-xl overflow-hidden mb-4">
                     <div class="swiper-wrapper">
                         ${images.map(img => `
@@ -471,6 +473,7 @@
                     <div class="swiper-pagination"></div>
                 </div>
 
+                <!-- TITLE + STATUS -->
                 <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
                     <h3 class="modal-title" style="margin:0;">
                         ${item.judul}
@@ -481,16 +484,56 @@
                     </span>
                 </div>
 
-                <div class="modal-meta-row" style="margin-top:10px; display:flex; flex-direction:column; gap:6px; font-size:13px; color:#aaa;">
+                <!-- META -->
+                <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px; font-size:13px; color:#aaa;">
                     <span><i class="${item.icon}"></i> ${item.kategori.toUpperCase()}</span>
                     <span><i class="fa-solid fa-location-dot"></i> ${item.lokasi}</span>
                     <span><i class="fa-solid fa-clock"></i> ${item.waktu}</span>
                 </div>
 
-                <p class="modal-desc" style="margin-top:15px; line-height:1.6;">
+                <!-- DESKRIPSI -->
+                <p style="margin-top:15px; line-height:1.6;">
                     ${item.deskripsi}
                 </p>
 
+                <!-- 🔥 PROGRESS TIMELINE -->
+                ${item.updates && item.updates.length > 0 ? `
+                    <div style="margin-top:20px;">
+                        <h4 style="font-size:14px; margin-bottom:10px;">Riwayat Progress</h4>
+
+                        <div style="position:relative; padding-left:18px;">
+                            <!-- garis -->
+                            <div style="position:absolute; left:6px; top:0; bottom:0; width:2px; background:#eee;"></div>
+
+                            ${item.updates.slice(0,3).map(update => `
+                                <div style="position:relative; margin-bottom:15px;">
+                                    
+                                    <!-- titik -->
+                                    <div style="position:absolute; left:-12px; top:4px; width:8px; height:8px;
+                                        background:#3b82f6; border-radius:50%;">
+                                    </div>
+
+                                    <!-- card -->
+                                    <div style="background:#f9fafb; padding:10px; border-radius:6px;">
+                                        <div style="font-size:11px; color:#999; margin-bottom:3px;">
+                                            ${formatTimeAgo(update.created_at)}
+                                        </div>
+                                        <div style="font-size:13px; color:#444;">
+                                            ${update.note}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : `
+                    <p style="margin-top:20px; font-size:12px; color:#aaa;">
+                        Belum ada progress dari pihak terkait.
+                    </p>
+                `}
+
+                <!-- ACTION BUTTON -->
                 <div style="margin-top:25px; display:flex; gap:10px;" data-id="${item.id}">
                     <button class="btn-lapor ${item.is_voted ? '' : 'not-voted'}" 
                         onclick="voteReport(${item.id}, this)">
@@ -575,32 +618,81 @@
             }
         }
 
-        async function voteReport(id, btn) {
-        try {
-            const res = await fetch(`/reports/${id}/vote`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json'
+    //     async function voteReport(id, btn) {
+    //     try {
+    //         const res = await fetch(`/reports/${id}/vote`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
+
+    //         const data = await res.json();
+
+    //         // 🔥 UPDATE DATASET (INI SOURCE OF TRUTH)
+    //         const item = datasetInsiden.find(x => x.id === id);
+    //         if (item) {
+    //             item.votes_count = data.votes;
+    //             item.is_voted = data.status === 'voted';
+    //         }
+
+    //         // 🔥 UPDATE CARD + MODAL SEKALIGUS
+    //         refreshUI(id);
+
+    //     } catch (err) {
+    //         console.error(err);
+    //     }
+    // }
+
+      async function voteReport(id, btn) {
+            try {
+                const res = await fetch(`/reports/${id}/vote`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json' // 🔥 INI PENTING BANGET
+                    }
+                });
+
+                // 🔥 sekarang ini bakal ke-trigger
+                if (res.status === 401) {
+                    const data = await res.json();
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Oops...',
+                        text: data.message || 'Harus login dulu!',
+                        confirmButtonText: 'Login'
+                    }).then(() => {
+                        window.location.href = '/auth';
+                    });
+
+                    return;
                 }
-            });
 
-            const data = await res.json();
+                const data = await res.json();
 
-            // 🔥 UPDATE DATASET (INI SOURCE OF TRUTH)
-            const item = datasetInsiden.find(x => x.id === id);
-            if (item) {
-                item.votes_count = data.votes;
-                item.is_voted = data.status === 'voted';
+                const item = datasetInsiden.find(x => x.id === id);
+                if (item) {
+                    item.votes_count = data.votes;
+                    item.is_voted = data.status === 'voted';
+                }
+
+                refreshUI(id);
+
+            } catch (err) {
+                console.error('ERROR:', err);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan, coba lagi!'
+                });
             }
-
-            // 🔥 UPDATE CARD + MODAL SEKALIGUS
-            refreshUI(id);
-
-        } catch (err) {
-            console.error(err);
         }
-    }
+    
         // --- 7. Floating Action Button (FAB) Menu Animation System ---
         // const fabTrigger = document.getElementById('fabTrigger');
         // const fabArea = document.getElementById('fabArea');

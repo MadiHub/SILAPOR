@@ -100,6 +100,13 @@ class ReportController extends Controller
 
     public function vote($id)
     {
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Harus login dulu!'
+            ], 401);
+        }
+
         $userId = Auth::id();
 
         $report = Report::findOrFail($id);

@@ -46,7 +46,7 @@ class Report extends Model
 
     public function updates()
     {
-        return $this->hasMany(ReportUpdate::class);
+        return $this->hasMany(ReportUpdate::class)->latest();
     }
 
     public function comments()
