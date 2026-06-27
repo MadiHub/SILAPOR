@@ -3,6 +3,162 @@
 @section('title', 'Laporan Saya')
 
 @section('content')
+
+<style>
+/* ============================================
+   ACTION BUTTONS DI CARD (edit/delete)
+============================================ */
+.card-img-wrapper {
+    position: relative;
+}
+
+.card-action-buttons {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 6px;
+    z-index: 5;
+}
+
+.card-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 28, 46, 0.75);
+    backdrop-filter: blur(6px);
+    color: #E2E8F0;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.card-action-edit:hover {
+    background: rgba(249, 115, 22, 0.85);
+    border-color: rgba(249, 115, 22, 0.9);
+    color: #fff;
+}
+
+.card-action-delete:hover {
+    background: rgba(239, 68, 68, 0.85);
+    border-color: rgba(239, 68, 68, 0.9);
+    color: #fff;
+}
+
+/* ============================================
+   ACTION BUTTONS DI MODAL DETAIL
+============================================ */
+.modal-action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-modal-edit, .btn-modal-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-edit {
+    background: rgba(249, 115, 22, 0.12);
+    color: #f97316;
+}
+.btn-modal-edit:hover {
+    background: rgba(249, 115, 22, 0.22);
+}
+
+.btn-modal-delete {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+.btn-modal-delete:hover {
+    background: rgba(239, 68, 68, 0.22);
+}
+
+/* ============================================
+   CONFIRM DELETE MODAL (kecil, di atas modal detail)
+============================================ */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.confirm-overlay.open {
+    display: flex;
+}
+.confirm-box {
+    background: #111C2E;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px;
+    max-width: 320px;
+    text-align: center;
+}
+.confirm-box i {
+    font-size: 28px;
+    color: #ef4444;
+    margin-bottom: 10px;
+}
+.confirm-box h4 {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.confirm-box p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 18px;
+    line-height: 1.5;
+}
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+}
+.confirm-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+}
+.confirm-cancel {
+    background: rgba(255,255,255,0.06);
+    color: #cbd5e1;
+}
+.confirm-cancel:hover {
+    background: rgba(255,255,255,0.1);
+}
+.confirm-delete-final {
+    background: #ef4444;
+    color: #fff;
+}
+.confirm-delete-final:hover {
+    background: #dc2626;
+}
+</style>
+
 <section class="popular-reports-section" id="my-reports-section">
     <div class="section-header row-header">
         <div>
@@ -11,6 +167,17 @@
             <p class="section-desc">Pantau status dan progres laporan yang sudah Anda kirimkan.</p>
         </div>
     </div>
+
+    @if (session('success'))
+        <div class="mb-4 text-sm px-4 py-3 rounded-xl" style="background: rgba(34,197,94,0.1); color: #4ade80;">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-4 text-sm px-4 py-3 rounded-xl" style="background: rgba(239,68,68,0.1); color: #f87171;">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="feed-tabs">
         <button class="tab-btn active" data-status="all">Semua</button>
@@ -29,6 +196,7 @@
                 <div class="card-img-wrapper">
                     <img src="{{ $report['images']->first()?->image_url ? '/storage/' . $report['images']->first()->image_url : 'https://via.placeholder.com/600x400' }}"
                          alt="Gambar Insiden" class="card-img-placeholder">
+
                     <div class="card-badges">
                         <span class="badge-status-dot status-{{ $report['status'] }}">
                             @switch($report['status'])
@@ -40,6 +208,24 @@
                             @endswitch
                         </span>
                     </div>
+
+                    {{-- Tombol edit/delete HANYA muncul kalau status masih active --}}
+                    @if ($report['status'] === 'active')
+                    <div class="card-action-buttons">
+                        <a href="{{ route('reports.edit', $report['id']) }}"
+                           class="card-action-btn card-action-edit"
+                           title="Edit Laporan"
+                           onclick="event.stopPropagation()">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <button type="button"
+                            class="card-action-btn card-action-delete"
+                            title="Hapus Laporan"
+                            onclick="event.stopPropagation(); openConfirmDelete({{ $report['id'] }})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="card-body">
@@ -54,13 +240,10 @@
                     <div class="card-footer-metrics" data-id="{{ $report['id'] }}">
                         <div class="metrics-left-group">
                             <button class="metric-item-btn btn-upvote {{ $report['is_voted'] ? 'upvoted' : '' }}"
-                                onclick="voteReport({{ $report['id'] }}, this)">
+                                onclick="event.stopPropagation(); voteReport({{ $report['id'] }}, this)">
                                 <i class="fa-solid fa-thumbs-up"></i>
                                 <span class="vote-count">{{ $report['votes_count'] }}</span>
                             </button>
-                            <!-- <span class="metric-item-btn">
-                                <i class="fa-regular fa-comment"></i> {{ $report['comments_count'] }}
-                            </span> -->
                         </div>
                         <span class="metric-time">{{ $report['created_at']->diffForHumans() }}</span>
                     </div>
@@ -83,6 +266,23 @@
         <button class="modal-close-btn" id="closeModal">&times;</button>
         <div class="modal-body" id="modalTargetBody">
         </div>
+    </div>
+</div>
+
+{{-- Konfirmasi hapus, dipakai bareng dari card maupun modal --}}
+<div class="confirm-overlay" id="confirmDeleteOverlay">
+    <div class="confirm-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <h4>Hapus Laporan?</h4>
+        <p>Laporan dan semua foto yang sudah diunggah akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.</p>
+        <form id="deleteForm" method="POST" action="">
+            @csrf
+            @method('DELETE')
+            <div class="confirm-actions">
+                <button type="button" class="confirm-cancel" onclick="closeConfirmDelete()">Batal</button>
+                <button type="submit" class="confirm-delete-final">Ya, Hapus</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -141,6 +341,18 @@
 
         const status = getStatusConfig(item.status);
 
+        // tombol edit/delete cuma muncul di modal kalau status masih active
+        const actionRow = item.status === 'active' ? `
+            <div class="modal-action-row">
+                <a href="/reports/${item.id}/edit" class="btn-modal-edit">
+                    <i class="fa-solid fa-pen"></i> Edit Laporan
+                </a>
+                <button type="button" class="btn-modal-delete" onclick="openConfirmDelete(${item.id})">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                </button>
+            </div>
+        ` : '';
+
         modalTargetBody.innerHTML = `
             <div class="swiper mySwiper rounded-xl overflow-hidden mb-4">
                 <div class="swiper-wrapper">
@@ -186,6 +398,8 @@
                     Tutup
                 </button>
             </div>
+
+            ${actionRow}
         `;
 
         modalOverlay.classList.add('open');
@@ -218,13 +432,31 @@
         }
     });
 
-    // --- Klik card (selain tombol vote) buka modal ---
+    // --- Klik card (selain tombol vote/edit/delete) buka modal ---
     document.querySelectorAll('#myReportsGridContainer .report-card').forEach(card => {
         card.addEventListener('click', (e) => {
             if (e.target.closest('.btn-upvote')) return;
+            if (e.target.closest('.card-action-btn')) return;
             const id = parseInt(card.dataset.report ? JSON.parse(card.dataset.report).id : 0);
             bukaModalDetailLaporan(id);
         });
+    });
+
+    // --- Konfirmasi Hapus ---
+    const confirmOverlay = document.getElementById('confirmDeleteOverlay');
+    const deleteForm = document.getElementById('deleteForm');
+
+    function openConfirmDelete(id) {
+        deleteForm.action = `/reports/${id}`;
+        confirmOverlay.classList.add('open');
+    }
+
+    function closeConfirmDelete() {
+        confirmOverlay.classList.remove('open');
+    }
+
+    confirmOverlay.addEventListener('click', (e) => {
+        if (e.target === confirmOverlay) closeConfirmDelete();
     });
 
     // --- Vote System ---
@@ -272,7 +504,7 @@
         }
     }
 
-    // --- Filter Tab (sama seperti beranda, tapi langsung filter elemen yang sudah ada) ---
+    // --- Filter Tab ---
     document.querySelectorAll('.feed-tabs .tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('.feed-tabs .tab-btn').forEach(b => b.classList.remove('active'));

@@ -12,7 +12,7 @@
                 <p class="hero-desc">Platform digital terintegrasi untuk warga melaporkan kerusakan jalan, jembatan,
                     saluran air, banjir, dan bencana ringan langsung ke instansi terkait secara real-time.</p>
                 <div class="hero-cta-group">
-                    <a href="{{ route('reports.create') }}" class="btn-cta-primary">Buat Laporan Sekarang <i
+                    <a href="{{ route('reports.index') }}" class="btn-cta-primary">Buat Laporan Sekarang <i
                             class="fa-solid fa-arrow-right"></i></a>
                     <a href="#map-section" class="btn-cta-secondary"><i class="fa-solid fa-map-location-dot"></i> Lihat
                         Peta Insiden</a>
@@ -151,7 +151,7 @@
         </div>
 
         <div class="center-action">
-            <a href="{{ route('reports.create') }}" class="btn-load-more">Lihat Semua Laporan <i class="fa-solid fa-chevron-right"></i></a>
+            <button class="btn-load-more">Lihat Semua Laporan <i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </section>
 

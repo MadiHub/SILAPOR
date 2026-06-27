@@ -1347,31 +1347,33 @@
                 <li class="dropdown">
                     <a href="#">Layanan <i class="fa-solid fa-chevron-down"></i></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ route('reports.index') }}">Buat Laporan</a></li>
+                        <li><a href="{{ route('reports.create') }}">Buat Laporan</a></li>
                         <li><a href="#map-section">Status Bencana</a></li>
                         <li><a href="#map-section">Peta Insiden</a></li>
                     </ul>
                 </li>
                 <li><a href="{{ route('reports.me') }}">Laporan</a></li>
                 <li><a href="#">Statistik</a></li>
-                <li><a href="#">Tentang</a></li>
+                <li><a href="{{ route('home.about') }}">Tentang</a></li>
             </ul>
             <div class="nav-actions">
                 <!-- <button class="btn-notif"><i class="fa-regular fa-bell"></i><span class="badge"></span></button> -->
                 <!-- <button class="btn-lapor header-btn">Buat Laporan</button> -->
                     @auth
                     @php
-                    $user = auth()->user();
+                        $user = auth()->user();
 
-                    $avatarUrl = $user->avatar;
+                        $avatarUrl = $user->avatar;
 
-                    if ($avatarUrl && str_contains($avatarUrl, 'googleusercontent.com')) {
-                        $avatarUrl = preg_replace('/=s\d+-c/', '=s200-c', $avatarUrl);
-                    }
-
-                    if (!$avatarUrl) {
-                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=133a68&color=fff&size=100&bold=true';
-                    }
+                        if ($avatarUrl && str_contains($avatarUrl, 'googleusercontent.com')) {
+                            // Avatar dari Google OAuth — sudah URL absolut
+                            $avatarUrl = preg_replace('/=s\d+-c/', '=s200-c', $avatarUrl);
+                        } elseif ($avatarUrl) {
+                            // Avatar upload manual — path relatif di storage
+                            $avatarUrl = asset('storage/' . $avatarUrl);
+                        } else {
+                            $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=133a68&color=fff&size=100&bold=true';
+                        }
                     @endphp
                     <div class="relative">
                     <button id="user-menu-button" type="button" class="flex items-center space-x-2 focus:outline-none">
@@ -1422,7 +1424,7 @@
             </div>
             <div class="fab-menu-item">
                 <span class="fab-label">Buat Laporan</span>
-                <a href="{{ route('reports.index') }}" class="fab-sub-btn dark-fab"><i class="fa-regular fa-file-lines"></i></a>
+                <a href="{{ route('reports.create') }}" class="fab-sub-btn dark-fab"><i class="fa-regular fa-file-lines"></i></a>
             </div>
             <div class="fab-menu-item">
                 <span class="fab-label">Hubungi 112</span>
@@ -1466,27 +1468,39 @@
             <div class="footer-links-column">
                 <h3>LAYANAN</h3>
                 <ul>
-                    <li><a href="{{ route('reports.index') }}">Buat Laporan</a></li>
+                    <li><a href="{{ route('reports.create') }}">Buat Laporan</a></li>
                     <li><a href="#map-section">Status Bencana</a></li>
                     <li><a href="#map-section">Peta Insiden</a></li>
                 </ul>
             </div>
 
+            @php
+                $departments = \App\Models\Department::limit(6)->get();
+                $totalDepartments = \App\Models\Department::count();
+            @endphp
+
             <div class="footer-links-column">
                 <h3>INSTANSI TERKAIT</h3>
                 <ul>
-                    @forelse ($departments->take(6) as $dept)
-                        <li><a href="#">{{ $dept->code }}</a></li>
+                    @forelse ($departments as $dept)
+                        <li>
+                            <a href="#">{{ $dept->code }}</a>
+                        </li>
                     @empty
-                        <li><span class="text-gray-400">Belum ada data instansi</span></li>
+                        <li>
+                            <span class="text-gray-400">Belum ada data instansi</span>
+                        </li>
                     @endforelse
 
-                    @if($departments->count() > 6)
-                        <li><a href="/instansi" class="text-blue-400">Lihat Semua →</a></li>
+                    @if ($totalDepartments > 6)
+                        <li>
+                            <a href="/instansi" class="text-blue-400">
+                                Lihat Semua →
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </div>
-
             <div class="footer-links-column">
                 <h3>BANTUAN</h3>
                 <ul>
@@ -1500,7 +1514,7 @@
         </div>
 
         <div class="footer-bottom-copyright">
-            <p>&copy; 2026 SiLapor &mdash; Pemerintah Kota Bekasi. Hak Cipta Dilindungi.</p>
+            <p>&copy; 2026 SiLapor - Pemerintah Kota Bekasi. Hak Cipta Dilindungi.</p>
             <p>Dibuat dengan <span class="heart-icon">&hearts;</span> untuk warga Bekasi</p>
         </div>
     </footer>

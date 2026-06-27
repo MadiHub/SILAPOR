@@ -72,6 +72,19 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.category-card {
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* state aktif */
+.category-card.active {
+    border-color: rgba(249, 115, 22, 0.8);
+    background: rgba(249, 115, 22, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(249, 115, 22, 0.3);
+}
 </style>
 
 <!-- LOADING -->
@@ -85,10 +98,10 @@ body {
 
 <main class="max-w-4xl mx-auto px-4 mt-10 mb-10">
 
-<form id="reportForm" class="space-y-6">
-
-    <input type="hidden" id="latitude">
-    <input type="hidden" id="longitude">
+<form id="reportForm" class="space-y-6" action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" id="latitude" name="latitude">
+    <input type="hidden" id="longitude" name="longitude">
 
     <!-- KATEGORI -->
     <div class="flex items-center space-x-2 border-b border-gray-800 pb-2 mb-4">
@@ -99,7 +112,7 @@ body {
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             @foreach ($problem_categories as $category)
             <label class="glass-card category-card rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer relative group">
-                <input type="radio" name="kategori" value="{{ $category->id }}" class="hidden" required>
+                <input type="radio" name="category_id" value="{{ $category->id }}" class="hidden" required>
                 <div class="text-center">
                     <i class="{{ $category->icon }}"></i>
                     <div class="text-xs mt-2">{{ $category->name }}</div>
@@ -122,8 +135,9 @@ body {
         <!-- CEK LOKASI -->
         <button type="button"
             onclick="cekLokasi()"
-            class="w-full bg-blue-500 text-white py-3 rounded-xl">
-            📍 Cek Lokasi Saya
+            class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 transition duration-200">
+            <i class="fa-solid fa-location-crosshairs"></i>
+            Cek Lokasi Saya
         </button>
     </div>
 
@@ -135,37 +149,39 @@ body {
         <!-- DETAIL -->
         <div class="space-y-4">
                 <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Lokasi Kejadian <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <i class="fa-solid fa-location-dot absolute left-4 top-3.5 text-gray-500"></i>
+                        <input id="lokasiText" name="address" type="text" placeholder="RT 03/RW 07, Kel. Sukamaju, Kec. Cilandak"
+                            class="w-full glass-card custom-input rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none text-white bg-[#111C2E]/50 border-0">
+                    </div>
+                    <div class="text-right text-xs text-gray-500 mt-1 transition-colors" id="lokasiCount">0/100
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1">Judul Masalah <span
                             class="text-red-500">*</span></label>
-                    <input type="text" id="judul" name="judul" maxlength="120"
+                    <input type="text" id="title" name="title" maxlength="120"
                         placeholder="Contoh: Jalan berlubang di Jl. Merdeka No. 12"
                         class="w-full glass-card custom-input rounded-xl px-4 py-3 text-sm focus:outline-none text-white bg-[#111C2E]/50 border-0"
                         required>
-                    <div class="text-right text-xs text-gray-500 mt-1 transition-colors" id="judulCount">0/120</div>
+                    <div class="text-right text-xs text-gray-500 mt-1 transition-colors" id="titleCount">0/120</div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Lokasi Kejadian</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-location-dot absolute left-4 top-3.5 text-gray-500"></i>
-                        <input type="text" placeholder="RT 03/RW 07, Kel. Sukamaju, Kec. Cilandak"
-                            class="w-full glass-card custom-input rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none text-white bg-[#111C2E]/50 border-0">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Deskripsi Masalah <span
+                    <label class="block text-sm font-medium text-gray-300 mb-1">description Masalah <span
                             class="text-red-500">*</span></label>
-                    <textarea id="deskripsi" name="deskripsi" maxlength="1000" rows="4"
+                    <textarea id="description" name="description" maxlength="1000" rows="4"
                         placeholder="Jelaskan masalah secara rinci — kapan terjadi, dampak yang ditimbulkan, kondisi saat ini, dan informasi penting lainnya..."
                         class="w-full glass-card custom-input rounded-xl px-4 py-3 text-sm focus:outline-none text-white resize-none bg-[#111C2E]/50 border-0"
                         required></textarea>
-                    <div class="text-right text-xs text-gray-500 mt-1 transition-colors" id="deskripsiCount">0/1000
+                    <div class="text-right text-xs text-gray-500 mt-1 transition-colors" id="descriptionCount">0/1000
                 </div>
             </div>
         </div>
         
         <div>
+            <div>
                 <div class="flex items-center space-x-2 border-b border-gray-800 pb-2 mb-2">
                     <span class="text-xs font-mono text-orange-500 font-bold">04</span>
                     <h3 class="text-md font-bold text-gray-300">Foto Masalah</h3>
@@ -175,7 +191,7 @@ body {
 
                 <div id="dropzone"
                     class="border-2 border-dashed border-gray-800 hover:border-gray-500 rounded-xl p-8 text-center bg-[#111C2E]/30 cursor-pointer transition-all duration-300 group">
-                    <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
+                    <input type="file" id="fileInput" name="images[]" multiple accept="image/*" class="hidden">
                     <div class="flex flex-col items-center justify-center pointer-events-none">
                         <div
                             class="bg-[#1C2C42]/60 p-3 rounded-xl mb-3 shadow-inner group-hover:scale-110 group-hover:bg-[#253954]/80 transition-all duration-300">
@@ -195,7 +211,7 @@ body {
                     class="w-full sm:w-1/3 border border-gray-800 text-gray-400 font-medium py-3 rounded-xl hover:bg-gray-800/60 hover:text-white active:scale-95 transition-all duration-200 text-sm cursor-pointer">
                     Reset Form
                 </button>
-                <button type="submit"
+                <button type="submit" id="submitBtn" 
                     class="w-full sm:w-2/3 bg-orange-500 text-white font-semibold py-3 rounded-xl hover:bg-orange-600 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-orange-500/10 hover:shadow-orange-600/20 text-sm flex items-center justify-center space-x-2 cursor-pointer group">
                     <i
                         class="fa-solid fa-paper-plane group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
@@ -214,7 +230,7 @@ body {
    STATE
 ========================= */
 let lokasiValid = false;
-let bekasiPolygon = null;
+let lokasiPolygon = null;
 let polygonReady = false;
 let gpsLock = false;
 let selectedFiles = [];
@@ -227,6 +243,51 @@ const submitBtn = document.getElementById('submitBtn');
 const fileInput = document.getElementById('fileInput');
 const dropzone = document.getElementById('dropzone');
 const previewGrid = document.getElementById('previewGrid');
+const categoryCards = document.querySelectorAll('.category-card');
+
+categoryCards.forEach(card => {
+    const radio = card.querySelector('input[type="radio"]');
+
+    card.addEventListener('click', () => {
+        // reset semua
+        categoryCards.forEach(c => c.classList.remove('active'));
+
+        // set active ke yang diklik
+        card.classList.add('active');
+
+        // tetap sync ke radio
+        radio.checked = true;
+    });
+});
+
+function toggleForm(disabled = true) {
+    const elements = form.querySelectorAll('input, textarea, button');
+
+    elements.forEach(el => {
+        // skip tombol cek lokasi
+        if (el.type === 'button' && el.innerText.includes('Cek Lokasi')) return;
+
+        // skip reset kalau mau tetap aktif
+        if (el.id === 'btnReset') return;
+
+        el.disabled = disabled;
+
+        if (disabled) {
+            el.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            el.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    });
+
+    // 🔥 HANDLE DROPZONE (UPLOAD FOTO)
+    if (disabled) {
+        dropzone.classList.add('opacity-50', 'cursor-not-allowed');
+        dropzone.classList.remove('cursor-pointer');
+    } else {
+        dropzone.classList.remove('opacity-50', 'cursor-not-allowed');
+        dropzone.classList.add('cursor-pointer');
+    }
+}
 
 /* =========================
    STATUS UI
@@ -250,14 +311,12 @@ function setStatus(msg, color) {
 ========================= */
 function lockForm() {
     lokasiValid = false;
-    submitBtn.disabled = true;
-    submitBtn.classList.add('opacity-50','cursor-not-allowed');
+    toggleForm(true);
 }
 
 function unlockForm() {
     lokasiValid = true;
-    submitBtn.disabled = false;
-    submitBtn.classList.remove('opacity-50','cursor-not-allowed');
+    toggleForm(false);
 }
 
 /* =========================
@@ -274,6 +333,23 @@ function hideLoading() {
 }
 
 /* =========================
+   REVERSE GEOCODING
+========================= */
+async function getAlamat(lat, lng) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+        );
+
+        const data = await res.json();
+
+        return data.display_name || "Alamat tidak ditemukan";
+    } catch (err) {
+        return "Alamat tidak tersedia";
+    }
+}
+
+/* =========================
    POLYGON
 ========================= */
 async function loadPolygon() {
@@ -282,7 +358,7 @@ async function loadPolygon() {
         const res = await fetch('/api/polygon/get');
         const data = await res.json();
 
-        bekasiPolygon = turf.polygon(data.coordinates);
+        lokasiPolygon = turf.polygon(data.coordinates);
         polygonReady = true;
 
     } catch (err) {
@@ -311,25 +387,36 @@ function cekLokasi() {
     navigator.geolocation.getCurrentPosition(
         async (pos) => {
 
-            gpsLock = false;
+            try {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
 
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
 
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
+                const point = turf.point([lng, lat]);
+                const isInside = turf.booleanPointInPolygon(point, lokasiPolygon);
 
-            const point = turf.point([lng, lat]);
-            const isInside = turf.booleanPointInPolygon(point, bekasiPolygon);
+                if (isInside) {
 
-            hideLoading();
+                    setStatus("📍 Mengambil alamat...", "yellow");
 
-            if (isInside) {
-                setStatus("✔ Lokasi Valid", "green");
-                unlockForm();
-            } else {
-                setStatus("❌ Di luar area", "red");
-                lockForm();
+                    // 🔥 ambil alamat
+                    const alamat = await getAlamat(lat, lng);
+
+                    document.getElementById('lokasiText').value = alamat;
+
+                    setStatus("✔ Lokasi & alamat valid", "green");
+                    unlockForm();
+
+                } else {
+                    setStatus("❌ Di luar area", "red");
+                    lockForm();
+                }
+
+            } finally {
+                gpsLock = false;
+                hideLoading();
             }
         },
 
@@ -426,25 +513,27 @@ function syncInput() {
 /* =========================
    SUBMIT
 ========================= */
-form.addEventListener('submit', e => {
+// form.addEventListener('submit', e => {
 
-    e.preventDefault();
+//     e.preventDefault();
 
-    if (!lokasiValid) {
-        alert("Cek lokasi dulu!");
-        return;
-    }
+//     if (!lokasiValid) {
+//         alert("Cek lokasi dulu!");
+//         return;
+//     }
 
-    const formData = new FormData(form);
+//     const formData = new FormData(form);
 
-    selectedFiles.forEach(f => formData.append('photos[]', f));
+//     selectedFiles.forEach(f => formData.append('images[]', f));
 
-    console.log("READY:", formData);
+//     console.log("READY:", formData);
 
-    alert("Siap kirim 🚀");
-});
+//     alert("Siap kirim 🚀");
+// });
 
-/* INIT */
+/* =========================
+   INIT
+========================= */
 document.addEventListener('DOMContentLoaded', () => {
     loadPolygon();
     lockForm();

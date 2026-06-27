@@ -403,8 +403,8 @@
 
             @php
                 $avatarUrl = $user->avatar
-                    ? asset($user->avatar)
-                    : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=133a68&color=fff';
+                ? asset('storage/' . $user->avatar)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=133a68&color=fff';
             @endphp
 
             <a href="{{ route('pemda.profile') }}">

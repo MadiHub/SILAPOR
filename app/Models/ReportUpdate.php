@@ -10,6 +10,10 @@ class ReportUpdate extends Model
     use HasFactory;
 
     protected $table = 'report_updates';
+    protected $casts = [
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+];
 
     protected $fillable = [
         'report_id',
@@ -33,6 +37,11 @@ class ReportUpdate extends Model
      * Relasi ke User (yang update)
      */
     public function user()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -170,45 +172,58 @@ class AuthController extends Controller
         return redirect('/'); 
     }
 
-    public function profile() {
-        $user = Auth::user();
-
-        if(!$user) {
-            abort(404);
-        }
-
-        return view('Auth.v_profile.index', compact('user'));
-    }
-
-    public function profile_update(Request $request)
+    public function profile()
     {
         $user = Auth::user();
-
-        if(!$user) {
-            abort(404);
-        }
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'no_hp' => ['nullable', 'string', 'max:20'],
-            'current_password' => ['nullable', 'string'],
-            'password' => ['nullable', 'string', 'confirmed', 'min:6'],
+    
+        return view('Auth.profile', [
+            'user' => $user,
         ]);
-
-        $user->name = $validated['name'];
-        $user->no_hp = $validated['no_hp'] ?? null;
-
-        if ($request->filled('current_password') || $request->filled('password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
-                return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai.']);
+    }
+    
+    /**
+     * Update data profile warga (nama, email, phone, avatar, password).
+     */
+    public function profileUpdate(Request $request)
+    {
+        $user = Auth::user();
+    
+        $validated = $request->validate([
+            'name'             => ['required', 'string', 'max:255'],
+            'email'            => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone'            => ['nullable', 'string', 'max:20'],
+            'avatar'           => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'current_password' => ['nullable', 'required_with:password', 'current_password'],
+            'password'         => ['nullable', 'confirmed', Password::min(8)],
+        ], [
+            'current_password.current_password' => 'Password saat ini yang Anda masukkan salah.',
+        ]);
+    
+        // Update data dasar
+        $user->name  = $validated['name'];
+        $user->email = $validated['email'];
+        $user->phone = $validated['phone'] ?? null;
+    
+        // Upload avatar baru jika ada (skip kalau avatar lama itu URL Google OAuth)
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && ! str_contains($user->avatar, 'googleusercontent.com')) {
+                Storage::disk('public')->delete($user->avatar);
             }
-
+    
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $path;
+        }
+    
+        // Update password jika diisi
+        if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
-
+    
         $user->save();
-
-        return redirect()->back()->with('success', 'Profil berhasil diperbarui.');
+    
+        return redirect()
+            ->route('profile')
+            ->with('success', 'Profile berhasil diperbarui.');
     }
     
 }
