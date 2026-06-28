@@ -5,9 +5,6 @@
 @section('content')
 
 <style>
-/* Mengikuti pattern .stat-card / .report-card yang sudah ada di style.css,
-   hanya menambahkan varian untuk kebutuhan halaman statistik */
-
 .stat-summary-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

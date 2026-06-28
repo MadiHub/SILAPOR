@@ -7,6 +7,10 @@ use App\Models\Report;
 use App\Models\ProblemCategory;
 use App\Models\ReportUpdate;
 use Illuminate\Http\Request;
+use App\Exports\ReportsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class PemdaReportController extends Controller
 {
@@ -15,9 +19,6 @@ class PemdaReportController extends Controller
         return auth()->user()->departments->first()->id;
     }
  
-    // ─────────────────────────────────────────────
-    //  INDEX
-    // ─────────────────────────────────────────────
     public function index(Request $request)
     {
         $departmentId = $this->getDepartmentId();
@@ -25,17 +26,14 @@ class PemdaReportController extends Controller
         $query = Report::with(['category', 'images', 'user'])
             ->where('department_id', $departmentId);
  
-        // Filter status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
  
-        // Filter kategori
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
  
-        // Filter tanggal
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
@@ -43,7 +41,6 @@ class PemdaReportController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
  
-        // Search judul / alamat
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -52,7 +49,6 @@ class PemdaReportController extends Controller
             });
         }
  
-        // Sort
         $sort = $request->get('sort', 'latest');
         match ($sort) {
             'oldest'    => $query->oldest(),
@@ -63,7 +59,6 @@ class PemdaReportController extends Controller
         $reports    = $query->paginate(10)->withQueryString();
         $categories = ProblemCategory::where('department_id', $departmentId)->get();
  
-        // Stat ringkasan
         $baseQuery    = Report::where('department_id', $departmentId);
         $stats = [
             'total'    => (clone $baseQuery)->count(),
@@ -76,9 +71,6 @@ class PemdaReportController extends Controller
         return view('Pemda.reports.index', compact('reports', 'categories', 'stats'));
     }
  
-    // ─────────────────────────────────────────────
-    //  SHOW
-    // ─────────────────────────────────────────────
     public function show(int $id)
     {
         $departmentId = $this->getDepartmentId();
@@ -97,9 +89,6 @@ class PemdaReportController extends Controller
         return view('Pemda.reports.show', compact('report'));
     }
  
-    // ─────────────────────────────────────────────
-    //  UPDATE STATUS
-    // ─────────────────────────────────────────────
     public function updateStatus(Request $request, int $id)
     {
         $request->validate([
@@ -114,9 +103,6 @@ class PemdaReportController extends Controller
         return back()->with('success', 'Status laporan berhasil diperbarui.');
     }
  
-    // ─────────────────────────────────────────────
-    //  ADD PROGRESS / CATATAN UPDATE
-    // ─────────────────────────────────────────────
     public function addProgress(Request $request, int $id)
     {
         $request->validate([
@@ -135,4 +121,85 @@ class PemdaReportController extends Controller
  
         return back()->with('success', 'Catatan progress berhasil ditambahkan.');
     }
+
+    private function buildReportQuery(Request $request)
+    {
+        $q = Report::with(['user', 'category', 'images'])
+            ->withCount('votes');
+
+        if ($request->filled('search')) {
+            $q->where(function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->search . '%')
+                    ->orWhere('address', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $q->where('status', $request->status);
+        }
+
+        if ($request->filled('category_id')) {
+            $q->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('date_from')) {
+            $q->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        match ($request->get('sort', 'latest')) {
+            'oldest' => $q->oldest(),
+            'votes'  => $q->orderByDesc('votes_count'),
+            default  => $q->latest(),
+        };
+
+        return $q;
+    }
+
+    // ---- Export Excel ----
+    public function exportExcel(Request $request)
+    {
+        $filters  = $request->only(['search', 'status', 'category_id', 'date_from', 'sort']);
+        $filename = 'laporan-pengaduan-' . now()->format('Ymd-His') . '.xlsx';
+
+        return Excel::download(new ReportsExport($filters), $filename);
+    }
+
+    // ---- Export PDF ----
+    public function exportPdf(Request $request)
+    {
+        $reports = $this->buildReportQuery($request)->get();
+
+        // Hitung stats dari seluruh data (tanpa filter) untuk kartu ringkasan
+        $allStats = Report::selectRaw("
+            COUNT(*) as total,
+            SUM(status = 'active')   as active,
+            SUM(status = 'process')  as process,
+            SUM(status = 'done')     as done,
+            SUM(status = 'rejected') as rejected
+        ")->first();
+
+        $stats = [
+            'total'    => $allStats->total,
+            'active'   => $allStats->active,
+            'process'  => $allStats->process,
+            'done'     => $allStats->done,
+            'rejected' => $allStats->rejected,
+        ];
+
+        // Teks filter aktif
+        $filterParts = [];
+        if ($request->filled('search'))      $filterParts[] = 'Kata kunci: "' . $request->search . '"';
+        if ($request->filled('status'))      $filterParts[] = 'Status: ' . $request->status;
+        if ($request->filled('category_id')) $filterParts[] = 'Kategori ID: ' . $request->category_id;
+        if ($request->filled('date_from'))   $filterParts[] = 'Dari tanggal: ' . $request->date_from;
+        $filterText = implode(' · ', $filterParts);
+
+        $pdf = Pdf::loadView('Pemda.reports.export_pdf', compact('reports', 'stats', 'filterText'))
+                ->setPaper('a4', 'landscape');
+
+        $filename = 'laporan-pengaduan-' . now()->format('Ymd-His') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
 }

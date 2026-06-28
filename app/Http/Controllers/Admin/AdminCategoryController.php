@@ -9,9 +9,6 @@ use Illuminate\Http\Request;
 
 class AdminCategoryController extends Controller
 {
-    // -------------------------------------------------------
-    // INDEX
-    // -------------------------------------------------------
     public function index(Request $request)
     {
         $query = ProblemCategory::with('department')
@@ -42,18 +39,12 @@ class AdminCategoryController extends Controller
         return view('Admin.Categories.index', compact('categories', 'departments', 'stats'));
     }
 
-    // -------------------------------------------------------
-    // CREATE
-    // -------------------------------------------------------
     public function create()
     {
         $departments = Department::orderBy('name')->get();
         return view('Admin.Categories.create', compact('departments'));
     }
 
-    // -------------------------------------------------------
-    // STORE
-    // -------------------------------------------------------
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -68,9 +59,6 @@ class AdminCategoryController extends Controller
                          ->with('success', "Kategori \"{$category->name}\" berhasil dibuat.");
     }
 
-    // -------------------------------------------------------
-    // SHOW
-    // -------------------------------------------------------
     public function show($id)
     {
         $category = ProblemCategory::with([
@@ -91,9 +79,6 @@ class AdminCategoryController extends Controller
         return view('Admin.Categories.show', compact('category', 'reportStats', 'departments'));
     }
 
-    // -------------------------------------------------------
-    // EDIT
-    // -------------------------------------------------------
     public function edit($id)
     {
         $category    = ProblemCategory::findOrFail($id);
@@ -101,9 +86,6 @@ class AdminCategoryController extends Controller
         return view('Admin.Categories.edit', compact('category', 'departments'));
     }
 
-    // -------------------------------------------------------
-    // UPDATE
-    // -------------------------------------------------------
     public function update(Request $request, $id)
     {
         $category = ProblemCategory::findOrFail($id);
@@ -120,9 +102,6 @@ class AdminCategoryController extends Controller
                          ->with('success', 'Kategori berhasil diperbarui.');
     }
 
-    // -------------------------------------------------------
-    // DESTROY
-    // -------------------------------------------------------
     public function destroy($id)
     {
         $category = ProblemCategory::findOrFail($id);
@@ -138,9 +117,6 @@ class AdminCategoryController extends Controller
                          ->with('success', "Kategori \"{$name}\" berhasil dihapus.");
     }
 
-    // -------------------------------------------------------
-    // REMAP  –  pindah ke dinas lain
-    // -------------------------------------------------------
     public function remap(Request $request, $id)
     {
         $request->validate([

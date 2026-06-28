@@ -41,7 +41,7 @@ class HomeController extends Controller
         ])
         ->withCount(['comments', 'votes']) // 🔥 TAMBAH INI
         ->orderByDesc('votes_count')
-        ->take(12)
+        ->take(6)
         ->get()
         ->map(function ($report) {
             return [
@@ -177,18 +177,6 @@ class HomeController extends Controller
         ]);
     }
     
-    /**
-     * Helper: ekstrak nama wilayah (kecamatan-ish) dari string address
-     * hasil reverse-geocoding Nominatim.
-     *
-     * Strategi:
-     * - Pecah address by koma
-     * - Buang segmen yang isinya cuma angka (kode pos) atau "Indonesia"
-     * - Ambil segmen ke-3 dari belakang (biasanya kecamatan/distrik)
-     *   Contoh: "Perumahan X, Papan Mas, Karangsatria, Kab Bekasi, West Java, 17510, Indonesia"
-     *   Setelah filter -> [Perumahan X, Papan Mas, Karangsatria, Kab Bekasi, West Java]
-     *   Ambil index ke-2 dari belakang -> "Karangsatria"
-     */
     private function extractWilayahFromAddress(string $address): ?string
     {
         $parts = array_map('trim', explode(',', $address));
@@ -205,7 +193,6 @@ class HomeController extends Controller
             return null;
         }
     
-        // ambil segmen ke-3 dari belakang kalau cukup panjang, fallback ke segmen terakhir
         if ($count >= 3) {
             return $parts[$count - 3];
         }
@@ -213,4 +200,43 @@ class HomeController extends Controller
         return $parts[$count - 1];
     }
 
+    public function caraLapor()
+    {
+        return view('Home.cara-lapor');
+    }
+
+    public function faq()
+    {
+        return view('Home.faq');
+    }
+
+    public function kebijakanPrivasi()
+    {
+        return view('Home.kebijakan-privasi');
+    }
+
+    public function syaratKetentuan()
+    {
+        return view('Home.syarat-ketentuan');
+    }
+
+    public function departments(Request $request)
+    {
+        $search = $request->get('search');
+ 
+        $departments = Department::withCount(['reports', 'categories'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('code', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->paginate(12)
+            ->withQueryString();
+ 
+        $totalDepartments = Department::count();
+        $totalReports     = \App\Models\Report::count();
+ 
+        return view('Home.departments', compact('departments', 'totalDepartments', 'totalReports', 'search'));
+    }
 }

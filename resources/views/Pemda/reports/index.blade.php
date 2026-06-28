@@ -106,11 +106,24 @@
 
 {{-- ================= TABLE ================= --}}
 <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
         <h3 style="margin:0;">Daftar Laporan</h3>
-        <span style="font-size:0.85em; color:#777;">
-            {{ $reports->total() }} laporan ditemukan
-        </span>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:0.85em; color:#777;">
+                {{ $reports->total() }} laporan ditemukan
+            </span>
+            <a href="{{ route('pemda.reports.export.excel', request()->query()) }}"
+            style="padding:7px 14px; background:#10b981; color:#fff; border-radius:8px;
+                    font-size:0.82em; text-decoration:none; white-space:nowrap;">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+            <a href="{{ route('pemda.reports.export.pdf', request()->query()) }}"
+            target="_blank"
+            style="padding:7px 14px; background:#ef4444; color:#fff; border-radius:8px;
+                    font-size:0.82em; text-decoration:none; white-space:nowrap;">
+                <i class="fas fa-file-pdf"></i> Cetak PDF
+            </a>
+        </div>
     </div>
 
     @if($reports->isEmpty())

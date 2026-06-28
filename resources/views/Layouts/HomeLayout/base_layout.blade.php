@@ -1359,20 +1359,6 @@
             .footer-top-section { grid-template-columns: 1fr; }
             .footer-bottom-copyright { flex-direction: column; text-align: center; }
         }
-/* 
-        .fab-wrapper {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .fab-wrapper {
-                display: block;
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 999;
-            }
-        } */
     </style>
 </head>
 <body>
@@ -1562,8 +1548,8 @@
 
                     @if ($totalDepartments > 6)
                         <li>
-                            <a href="/instansi" class="text-blue-400">
-                                Lihat Semua →
+                            <a href="{{ route('department.index') }}" class="text-blue-400">
+                                Lihat Semua <i class="fas fa-arrow-right"></i>
                             </a>
                         </li>
                     @endif
@@ -1572,10 +1558,10 @@
             <div class="footer-links-column">
                 <h3>BANTUAN</h3>
                 <ul>
-                    <li><a href="#">Cara Membuat Laporan</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Kebijakan Privasi</a></li>
-                    <li><a href="#">Syarat & Ketentuan</a></li>
+                    <li><a href="{{ route('static.cara-lapor') }}">Cara Membuat Laporan</a></li>
+                    <li><a href="{{ route('static.faq') }}">FAQ</a></li>
+                    <li><a href="{{ route('static.kebijakan-privasi') }}">Kebijakan Privasi</a></li>
+                    <li><a href="{{ route('static.syarat-ketentuan') }}">Syarat & Ketentuan</a></li>
                     <li><a href="#">Hubungi Kami</a></li>
                 </ul>
             </div>

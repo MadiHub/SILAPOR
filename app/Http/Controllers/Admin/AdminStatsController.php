@@ -12,14 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class AdminStatsController extends Controller
 {
-    // -------------------------------------------------------
-    // OVERVIEW  –  ringkasan umum semua metrik
-    // -------------------------------------------------------
     public function overview(Request $request)
     {
         $period = $request->input('period', '30'); // hari
 
-        // ── Laporan ──────────────────────────────────────────
         $totalReports   = Report::count();
         $newThisPeriod  = Report::where('created_at', '>=', now()->subDays($period))->count();
         $doneThisPeriod = Report::where('status', 'done')
@@ -29,21 +25,18 @@ class AdminStatsController extends Controller
                               ->groupBy('status')
                               ->pluck('total', 'status');
 
-        // ── Waktu penyelesaian rata-rata (hari) ───────────────
         $avgResolutionDays = DB::table('report_updates as ru')
             ->join('reports as r', 'r.id', '=', 'ru.report_id')
             ->where('ru.status', 'done')
             ->selectRaw('AVG(DATEDIFF(ru.created_at, r.created_at)) as avg_days')
             ->value('avg_days');
 
-        // ── Laporan per hari (chart) ──────────────────────────
         $dailyReports = Report::selectRaw('DATE(created_at) as date, COUNT(*) as total')
             ->where('created_at', '>=', now()->subDays($period))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
 
-        // ── Status donut ─────────────────────────────────────
         $statusChart = [
             'active'   => $statusCounts['active']   ?? 0,
             'process'  => $statusCounts['process']  ?? 0,
@@ -51,7 +44,6 @@ class AdminStatsController extends Controller
             'rejected' => $statusCounts['rejected']  ?? 0,
         ];
 
-        // ── Pengguna ─────────────────────────────────────────
         $totalUsers     = User::count();
         $activeUsers    = User::where('status', 'active')->count();
         $newUsers       = User::where('created_at', '>=', now()->subDays($period))->count();
@@ -61,20 +53,17 @@ class AdminStatsController extends Controller
                            ->groupBy('role')
                            ->pluck('total', 'role');
 
-        // ── Top reporter ─────────────────────────────────────
         $topReporters = User::withCount('reports')
                             ->having('reports_count', '>', 0)
                             ->orderByDesc('reports_count')
                             ->limit(5)
                             ->get();
 
-        // ── Top voted ────────────────────────────────────────
         $topVoted = Report::with('department')
                           ->orderByDesc('votes_count')
                           ->limit(5)
                           ->get();
 
-        // ── Dinas performa ───────────────────────────────────
         $deptPerformance = Department::withCount([
             'reports',
             'reports as done_count' => fn ($q) => $q->where('status', 'done'),
@@ -90,7 +79,6 @@ class AdminStatsController extends Controller
               'pct'   => $d->reports_count > 0 ? round($d->done_count / $d->reports_count * 100) : 0,
           ]);
 
-        // ── Kategori terpopuler ───────────────────────────────
         $topCategories = ProblemCategory::withCount('reports')
                                         ->having('reports_count', '>', 0)
                                         ->orderByDesc('reports_count')
@@ -106,14 +94,10 @@ class AdminStatsController extends Controller
         ));
     }
 
-    // -------------------------------------------------------
-    // TRENDS  –  tren laporan dalam waktu
-    // -------------------------------------------------------
     public function trends(Request $request)
     {
         $period    = $request->input('period', '90');
-        $groupBy   = $request->input('group', 'day'); // day | week | month
-
+        $groupBy   = $request->input('group', 'day'); 
         $format = match ($groupBy) {
             'week'  => '%Y-%u',
             'month' => '%Y-%m',
@@ -125,7 +109,6 @@ class AdminStatsController extends Controller
             default => '%d %b',
         };
 
-        // Laporan masuk per periode
         $incomingTrend = Report::selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key,
                                             DATE_FORMAT(created_at, '{$labelFormat}') as label,
                                             COUNT(*) as total")
@@ -134,7 +117,6 @@ class AdminStatsController extends Controller
             ->orderBy('period_key')
             ->get();
 
-        // Laporan selesai per periode
         $doneTrend = Report::selectRaw("DATE_FORMAT(updated_at, '{$format}') as period_key,
                                         DATE_FORMAT(updated_at, '{$labelFormat}') as label,
                                         COUNT(*) as total")
@@ -144,7 +126,6 @@ class AdminStatsController extends Controller
             ->orderBy('period_key')
             ->get();
 
-        // Pengguna baru per periode
         $userTrend = User::selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key,
                                       DATE_FORMAT(created_at, '{$labelFormat}') as label,
                                       COUNT(*) as total")
@@ -153,7 +134,6 @@ class AdminStatsController extends Controller
             ->orderBy('period_key')
             ->get();
 
-        // Vote per periode
         $voteTrend = DB::table('report_votes')
             ->selectRaw("DATE_FORMAT(created_at, '{$format}') as period_key,
                          DATE_FORMAT(created_at, '{$labelFormat}') as label,
@@ -163,21 +143,18 @@ class AdminStatsController extends Controller
             ->orderBy('period_key')
             ->get();
 
-        // Laporan per jam (heatmap sederhana)
         $hourlyDistribution = Report::selectRaw('HOUR(created_at) as hour, COUNT(*) as total')
             ->where('created_at', '>=', now()->subDays($period))
             ->groupBy('hour')
             ->orderBy('hour')
             ->pluck('total', 'hour');
 
-        // Fill missing hours
         $hourly = collect(range(0, 23))->map(fn ($h) => [
             'hour'  => $h,
             'label' => sprintf('%02d:00', $h),
             'total' => $hourlyDistribution[$h] ?? 0,
         ]);
 
-        // Laporan per hari-dalam-seminggu
         $weekdayDistribution = Report::selectRaw('DAYOFWEEK(created_at) as dow, COUNT(*) as total')
             ->where('created_at', '>=', now()->subDays($period))
             ->groupBy('dow')
@@ -196,9 +173,6 @@ class AdminStatsController extends Controller
         ));
     }
 
-    // -------------------------------------------------------
-    // DEPARTMENTS  –  performa dinas
-    // -------------------------------------------------------
     public function departments(Request $request)
     {
         $period = $request->input('period', '90');
@@ -217,7 +191,6 @@ class AdminStatsController extends Controller
                 ? round($dept->done_count / $dept->reports_count * 100)
                 : 0;
 
-            // Rata-rata waktu selesai (hari) per dinas
             $dept->avg_days = DB::table('report_updates as ru')
                 ->join('reports as r', 'r.id', '=', 'ru.report_id')
                 ->where('r.department_id', $dept->id)
@@ -228,7 +201,6 @@ class AdminStatsController extends Controller
             return $dept;
         })->sortByDesc('reports_count');
 
-        // Tren laporan per dinas (30 hari terakhir, top 5 dinas)
         $topDeptIds = $departments->take(5)->pluck('id');
 
         $deptTrend = Report::selectRaw('department_id, DATE(created_at) as date, COUNT(*) as total')
@@ -242,9 +214,6 @@ class AdminStatsController extends Controller
         return view('Admin.Stats.departments', compact('departments', 'period', 'deptTrend'));
     }
 
-    // -------------------------------------------------------
-    // TOP VOTES  –  laporan dengan vote terbanyak
-    // -------------------------------------------------------
     public function topVotes(Request $request)
     {
         $status   = $request->input('status', '');
@@ -260,7 +229,6 @@ class AdminStatsController extends Controller
         $reports     = $query->paginate($limit)->withQueryString();
         $departments = Department::orderBy('name')->get();
 
-        // Summary stats
         $totalVotes    = DB::table('report_votes')->count();
         $uniqueVoters  = DB::table('report_votes')->distinct('user_id')->count('user_id');
         $avgVotesPerReport = $totalVotes > 0 && Report::count() > 0
@@ -274,9 +242,6 @@ class AdminStatsController extends Controller
         ));
     }
 
-    // -------------------------------------------------------
-    // EXPORT  –  unduh data CSV
-    // -------------------------------------------------------
     public function export(Request $request)
     {
         $type   = $request->input('type', 'reports');
@@ -301,12 +266,10 @@ class AdminStatsController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // ── CSV Streamers ────────────────────────────────────────
-
     private function streamReportsCsv(string $period, string $status): void
     {
         $out = fopen('php://output', 'w');
-        fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
+        fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
 
         fputcsv($out, ['ID','Judul','Pelapor','Email Pelapor','Dinas','Kategori','Status','Vote','Alamat','Tanggal']);
 

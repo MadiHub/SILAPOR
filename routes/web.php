@@ -43,6 +43,11 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/about', [HomeController::class, 'about'])->name('home.about');
 Route::get('/statistics', [HomeController::class, 'statistics'])->name('statistics');
+Route::get('/cara-lapor',[HomeController::class, 'caraLapor'])->name('static.cara-lapor');
+Route::get('/faq',[HomeController::class, 'faq'])->name('static.faq');
+Route::get('/kebijakan-privasi',[HomeController::class, 'kebijakanPrivasi'])->name('static.kebijakan-privasi');
+Route::get('/syarat-ketentuan', [HomeController::class, 'syaratKetentuan'])->name('static.syarat-ketentuan');
+Route::get('/departments', [HomeController::class, 'departments'])->name('department.index');
 
 // POLLYGON API
 Route::get('/api/polygon/get', [LocationController::class, 'polygon']);
@@ -71,6 +76,8 @@ Route::middleware('pemda')->prefix('pemda')->name('pemda.')->group(function () {
     Route::post('/reports/{id}/progress', [PemdaReportController::class, 'addProgress'])->name('reports.progress');
     Route::get('/profile', [PemdaProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [PemdaProfileController::class, 'update'])->name('profile.update');
+    Route::get('/reports/export/excel', [PemdaReportController::class, 'exportExcel'])->name('reports.export.excel');   
+    Route::get('/reports/export/pdf',   [PemdaReportController::class, 'exportPdf'])->name('reports.export.pdf');
 });
 
 // ADMIN ROUTE

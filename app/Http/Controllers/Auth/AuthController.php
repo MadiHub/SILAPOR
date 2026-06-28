@@ -23,24 +23,23 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-                // dd($request->all());
+    // dd($request->all());
 
     $validator = Validator::make($request->all(), [
-    'name' => 'required|string|max:255',
-    'email' => 'required|email|unique:users,email',
-    'phone' => 'required|string|unique:users,phone',
-    'password' => 'required|string|min:8|confirmed',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'phone' => 'required|string|unique:users,phone',
+        'password' => 'required|string|min:8|confirmed',
     ], [
-    'name.required' => 'Nama wajib diisi',
-    'email.required' => 'Email wajib diisi',
-    'email.unique' => 'Email sudah terdaftar',
-    'phone.required' => 'Nomor HP wajib diisi',
-    'phone.unique' => 'Nomor HP sudah terdaftar',
-    'password.required' => 'Password wajib diisi',
-    'password.min' => 'Password minimal 8 karakter',
-    'password.confirmed' => 'Konfirmasi password tidak cocok',
+        'name.required' => 'Nama wajib diisi',
+        'email.required' => 'Email wajib diisi',
+        'email.unique' => 'Email sudah terdaftar',
+        'phone.required' => 'Nomor HP wajib diisi',
+        'phone.unique' => 'Nomor HP sudah terdaftar',
+        'password.required' => 'Password wajib diisi',
+        'password.min' => 'Password minimal 8 karakter',
+        'password.confirmed' => 'Konfirmasi password tidak cocok',
     ]);
-
 
     if ($validator->fails()) {
         return back()
@@ -60,8 +59,6 @@ class AuthController extends Controller
     Auth::login($user);
 
     return redirect()->route('home.index')->with('success', 'Akun berhasil dibuat!');
-
-
     }
 
     public function login(Request $request)
@@ -181,9 +178,6 @@ class AuthController extends Controller
         ]);
     }
     
-    /**
-     * Update data profile warga (nama, email, phone, avatar, password).
-     */
     public function profileUpdate(Request $request)
     {
         $user = Auth::user();
@@ -199,12 +193,10 @@ class AuthController extends Controller
             'current_password.current_password' => 'Password saat ini yang Anda masukkan salah.',
         ]);
     
-        // Update data dasar
         $user->name  = $validated['name'];
         $user->email = $validated['email'];
         $user->phone = $validated['phone'] ?? null;
     
-        // Upload avatar baru jika ada (skip kalau avatar lama itu URL Google OAuth)
         if ($request->hasFile('avatar')) {
             if ($user->avatar && ! str_contains($user->avatar, 'googleusercontent.com')) {
                 Storage::disk('public')->delete($user->avatar);
@@ -214,7 +206,6 @@ class AuthController extends Controller
             $user->avatar = $path;
         }
     
-        // Update password jika diisi
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }

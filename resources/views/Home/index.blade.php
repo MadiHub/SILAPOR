@@ -3,6 +3,243 @@
 @section('title', 'Beranda')
 
 @section('content')
+<style type="text/tailwindcss">
+    /* ===== CARA LAPOR ===== */
+    .how-section {
+        background: #fff;
+        padding: 80px 60px;
+    }
+
+    .how-section .section-header {
+        text-align: center;
+        margin-bottom: 56px;
+    }
+
+    .steps-container {
+        position: relative;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .steps-connector {
+        position: absolute;
+        top: 28px;
+        left: calc(12.5% + 28px);
+        right: calc(12.5% + 28px);
+        height: 2px;
+        background: #e2e8f0;
+        z-index: 0;
+    }
+
+    .steps-connector-fill {
+        height: 100%;
+        width: 75%;
+        background: var(--brand-orange);
+    }
+
+    .steps-wrapper {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .step-num {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #94a3b8;
+        font-size: 18px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+
+    .step-num.active {
+        background: var(--primary-blue);
+        color: #fff;
+    }
+
+    .step-badge {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #94a3b8;
+        background: #f5f8fc;
+        border: 1px solid #e2e8f0;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+
+    .step-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: #fff3ec;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 14px;
+        font-size: 20px;
+        color: var(--brand-orange);
+    }
+
+    .step-item h3 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 8px;
+    }
+
+    .step-item p {
+        font-size: 13px;
+        color: #64748b;
+        line-height: 1.7;
+    }
+
+    .how-cta {
+        text-align: center;
+        margin-top: 52px;
+    }
+
+    /* ===== FAQ ===== */
+    .faq-section {
+        background: var(--bg-light);
+        padding: 80px 60px;
+    }
+
+    .faq-section .section-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .faq-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .faq-item {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+    .faq-item.active {
+        border-color: var(--brand-orange);
+    }
+
+    .faq-q {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        cursor: pointer;
+        gap: 12px;
+    }
+
+    .faq-q span {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-blue);
+        line-height: 1.4;
+    }
+
+    .faq-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f5f8fc;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 12px;
+        color: var(--primary-blue);
+        transition: transform 0.25s, background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .faq-icon.open {
+        transform: rotate(45deg);
+        background: #fff3ec;
+        border-color: var(--brand-orange);
+        color: var(--brand-orange);
+    }
+
+    .faq-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 0 20px;
+    }
+
+    .faq-a {
+        padding: 0 20px;
+        max-height: 0;
+        overflow: hidden;
+        font-size: 13.5px;
+        color: #64748b;
+        line-height: 1.7;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .faq-a.show {
+        max-height: 200px;
+        padding: 14px 20px 18px;
+    }
+
+    .faq-contact-bar {
+        max-width: 960px;
+        margin: 32px auto 0;
+        background: var(--primary-blue);
+        border-radius: 12px;
+        padding: 28px 36px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .faq-contact-bar h3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+
+    .faq-contact-bar p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .steps-wrapper { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+        .steps-connector { display: none; }
+        .faq-grid { grid-template-columns: 1fr; }
+        .faq-contact-bar { flex-direction: column; text-align: center; }
+        .how-section, .faq-section { padding: 56px 24px; }
+    }
+</style>
 <section class="hero-section">
         <div class="hero-container">
             <div class="hero-content">
@@ -152,6 +389,163 @@
 
         <div class="center-action">
             <a href="{{ route('reports.index') }}" class="btn-load-more">Lihat Semua Laporan <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+    </section>
+
+    {{-- ===================================================== --}}
+{{-- SECTION: CARA MEMBUAT LAPORAN                        --}}
+{{-- ===================================================== --}}
+<section class="how-section">
+    <div class="section-header">
+        <span class="sub-title">PANDUAN PENGGUNAAN</span>
+        <h2 class="main-title">Cara Membuat Laporan</h2>
+        <p class="section-desc">Ikuti 4 langkah mudah untuk melaporkan masalah infrastruktur di sekitar Anda.</p>
+    </div>
+
+    <div class="steps-container">
+        <div class="steps-connector"><div class="steps-connector-fill"></div></div>
+
+        <div class="steps-wrapper">
+
+            <div class="step-item">
+                <div class="step-num active">1</div>
+                <span class="step-badge">MULAI</span>
+                <div class="step-icon-wrap">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h3>Buat Akun / Masuk</h3>
+                <p>Daftar menggunakan email atau masuk jika sudah punya akun. Proses registrasi kurang dari 1 menit.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num active">2</div>
+                    <span class="step-badge">ISI DATA</span>
+                <div class="step-icon-wrap">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                  <h3>Pilih Kategori & Cek Lokasi</h3>
+                    <p>Pilih kategori masalah yang sesuai, kemudian pastikan lokasi Anda terdeteksi dengan GPS aktif untuk validasi wilayah.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num active">3</div>
+                <span class="step-badge">UNGGAH</span>
+                <div class="step-icon-wrap">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <h3>Tambah Foto & Deskripsi</h3>
+                <p>Unggah foto kondisi lapangan dan tulis deskripsi singkat agar petugas dapat menindaklanjuti dengan tepat.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <span class="step-badge">SELESAI</span>
+                <div class="step-icon-wrap">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3>Kirim & Pantau Status</h3>
+                <p>Kirim laporan dan pantau perkembangannya secara real-time. Anda akan mendapat notifikasi setiap ada pembaruan.</p>
+            </div>
+
+        </div>
+    </div>
+    </section>
+
+    {{-- ===================================================== --}}
+    {{-- SECTION: FAQ                                         --}}
+    {{-- ===================================================== --}}
+    <section class="faq-section">
+        <div class="section-header">
+            <span class="sub-title">PERTANYAAN UMUM</span>
+            <h2 class="main-title">Ada yang Ingin Ditanyakan?</h2>
+            <p class="section-desc">Temukan jawaban atas pertanyaan yang paling sering diajukan warga.</p>
+        </div>
+
+        <div class="faq-grid">
+
+            <div class="faq-item active">
+                <div class="faq-q">
+                    <span>Apakah perlu mendaftar untuk membuat laporan?</span>
+                    <div class="faq-icon open"><i class="fa-solid fa-plus"></i></div>
+                </div>
+                <div class="faq-divider"></div>
+                <div class="faq-a show">
+                    Ya, pendaftaran diperlukan agar laporan dapat ditindaklanjuti dan Anda dapat memantau
+                    status laporan secara real-time. Proses daftar hanya membutuhkan email dan password.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">
+                    <span>Berapa lama laporan akan ditindaklanjuti?</span>
+                    <div class="faq-icon"><i class="fa-solid fa-plus"></i></div>
+                </div>
+                <div class="faq-divider"></div>
+                <div class="faq-a">
+                    Waktu respons bervariasi tergantung kategori. Laporan darurat seperti bencana
+                    ditargetkan respons dalam 1×24 jam, sedangkan masalah infrastruktur umum dalam 3–7 hari kerja.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">
+                    <span>Apakah saya bisa melaporkan masalah di luar Bekasi?</span>
+                    <div class="faq-icon"><i class="fa-solid fa-plus"></i></div>
+                </div>
+                <div class="faq-divider"></div>
+                <div class="faq-a">
+                    Saat ini platform ini hanya melayani wilayah Kota dan Kabupaten Bekasi.
+                    Laporan di luar wilayah tersebut tidak dapat diproses oleh instansi terkait.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">
+                    <span>Bagaimana cara mendukung laporan warga lain?</span>
+                    <div class="faq-icon"><i class="fa-solid fa-plus"></i></div>
+                </div>
+                <div class="faq-divider"></div>
+                <div class="faq-a">
+                    Anda dapat memberikan vote pada laporan yang dianggap penting. Semakin banyak
+                    vote, laporan akan mendapat prioritas lebih tinggi untuk ditangani oleh instansi terkait.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">
+                    <span>Foto apa saja yang perlu dilampirkan?</span>
+                    <div class="faq-icon"><i class="fa-solid fa-plus"></i></div>
+                </div>
+                <div class="faq-divider"></div>
+                <div class="faq-a">
+                    Lampirkan foto yang jelas menunjukkan kondisi masalah dari beberapa sudut.
+                    Format yang didukung: JPG, PNG, dan WEBP dengan ukuran maksimal 5MB per foto.
+                    Minimal 1 foto wajib dilampirkan.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-q">
+                    <span>Apakah identitas pelapor dijaga kerahasiaannya?</span>
+                    <div class="faq-icon"><i class="fa-solid fa-plus"></i></div>
+                </div>
+                <div class="faq-divider"></div>
+                <div class="faq-a">
+                    Ya. Identitas pelapor hanya diketahui oleh admin dan instansi terkait.
+                    Data pribadi Anda tidak akan ditampilkan secara publik di halaman laporan manapun.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="faq-contact-bar">
+            <div>
+                <h3>Masih punya pertanyaan lain?</h3>
+                <p>Tim kami siap membantu Anda setiap hari kerja pukul 08.00–16.00 WIB.</p>
+            </div>
+            <a href="mailto:pengaduan@bekasi.go.id" class="btn-cta-secondary">
+                <i class="fa-solid fa-envelope"></i> Hubungi Kami
+            </a>
         </div>
     </section>
 
@@ -753,5 +1147,29 @@
             modalOverlay.classList.remove('open');
         }
     });
+    </script>
+    <script>
+        document.querySelectorAll('.faq-q').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.faq-item');
+                const icon = btn.querySelector('.faq-icon');
+                const ans  = item.querySelector('.faq-a');
+                const isOpen = ans.classList.contains('show');
+
+                // tutup semua
+                document.querySelectorAll('.faq-item').forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('.faq-icon').classList.remove('open');
+                    i.querySelector('.faq-a').classList.remove('show');
+                });
+
+                // buka yang diklik (kalau belum terbuka)
+                if (!isOpen) {
+                    item.classList.add('active');
+                    icon.classList.add('open');
+                    ans.classList.add('show');
+                }
+            });
+        });
     </script>
 @endsection

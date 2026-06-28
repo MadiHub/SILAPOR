@@ -14,13 +14,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ForgotPasswordController extends Controller
 {
-    // ── Step 1: Tampilkan form masukkan email ──────────────────────────────
     public function showForm()
     {
         return view('Auth.forgot-password');
     }
 
-    // ── Step 2: Kirim OTP ke email ─────────────────────────────────────────
     public function sendOtp(Request $request)
     {
         $request->validate([
@@ -29,10 +27,8 @@ class ForgotPasswordController extends Controller
             'email.exists' => 'Email tidak terdaftar di sistem kami.',
         ]);
 
-        // Hapus OTP lama untuk email ini
         PasswordResetOtp::where('email', $request->email)->delete();
 
-        // Buat OTP 6 digit
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         PasswordResetOtp::create([
@@ -41,17 +37,14 @@ class ForgotPasswordController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        // Kirim email OTP
         Mail::to($request->email)->send(new \App\Mail\OtpMail($otp, $request->email));
 
-        // Simpan email di session untuk step berikutnya
         session(['reset_email' => $request->email]);
 
         return redirect()->route('password.verify-otp')
             ->with('success', 'Kode OTP telah dikirim ke email Anda. Berlaku 10 menit.');
     }
 
-    // ── Step 3: Tampilkan form verifikasi OTP ─────────────────────────────
     public function showOtpForm()
     {
         if (!session('reset_email')) {
@@ -60,7 +53,6 @@ class ForgotPasswordController extends Controller
         return view('auth.verify-otp');
     }
 
-    // ── Step 4: Verifikasi OTP ─────────────────────────────────────────────
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -84,16 +76,13 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['otp' => 'Kode OTP tidak valid atau sudah kedaluwarsa.']);
         }
 
-        // Tandai OTP sudah dipakai
         $record->update(['used' => true]);
 
-        // Simpan token verified di session
         session(['reset_verified' => true]);
 
         return redirect()->route('password.reset-form');
     }
 
-    // ── Step 5: Tampilkan form reset password ─────────────────────────────
     public function showResetForm()
     {
         if (!session('reset_email') || !session('reset_verified')) {
@@ -102,7 +91,6 @@ class ForgotPasswordController extends Controller
         return view('auth.reset-password');
     }
 
-    // ── Step 6: Simpan password baru ──────────────────────────────────────
     public function resetPassword(Request $request)
     {
         if (!session('reset_email') || !session('reset_verified')) {
@@ -125,7 +113,6 @@ class ForgotPasswordController extends Controller
 
         $user->update(['password' => Hash::make($request->password)]);
 
-        // Bersihkan session
         session()->forget(['reset_email', 'reset_verified']);
 
         return redirect()->route('auth')

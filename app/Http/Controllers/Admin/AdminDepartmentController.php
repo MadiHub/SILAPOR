@@ -9,9 +9,6 @@ use Illuminate\Http\Request;
 
 class AdminDepartmentController extends Controller
 {
-    // -------------------------------------------------------
-    // INDEX
-    // -------------------------------------------------------
     public function index(Request $request)
     {
         $query = Department::withCount(['reports', 'users', 'categories'])
@@ -37,17 +34,11 @@ class AdminDepartmentController extends Controller
         return view('Admin.Departments.index', compact('departments', 'stats'));
     }
 
-    // -------------------------------------------------------
-    // CREATE
-    // -------------------------------------------------------
     public function create()
     {
         return view('Admin.Departments.create');
     }
 
-    // -------------------------------------------------------
-    // STORE
-    // -------------------------------------------------------
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -64,9 +55,6 @@ class AdminDepartmentController extends Controller
                          ->with('success', "Dinas {$department->name} berhasil dibuat.");
     }
 
-    // -------------------------------------------------------
-    // SHOW
-    // -------------------------------------------------------
     public function show($id)
     {
         $department = Department::with([
@@ -88,7 +76,6 @@ class AdminDepartmentController extends Controller
             ? round(($reportStats['done'] / $reportStats['total']) * 100)
             : 0;
 
-        // Staff NOT yet in this department (for assign dropdown)
         $availableStaff = User::where('role', 'pemda')
             ->whereDoesntHave('departments', fn ($q) => $q->where('department_id', $id))
             ->orderBy('name')
@@ -99,18 +86,12 @@ class AdminDepartmentController extends Controller
         ));
     }
 
-    // -------------------------------------------------------
-    // EDIT
-    // -------------------------------------------------------
     public function edit($id)
     {
         $department = Department::findOrFail($id);
         return view('Admin.Departments.edit', compact('department'));
     }
 
-    // -------------------------------------------------------
-    // UPDATE
-    // -------------------------------------------------------
     public function update(Request $request, $id)
     {
         $department = Department::findOrFail($id);
@@ -129,9 +110,6 @@ class AdminDepartmentController extends Controller
                          ->with('success', 'Data dinas berhasil diperbarui.');
     }
 
-    // -------------------------------------------------------
-    // DESTROY
-    // -------------------------------------------------------
     public function destroy($id)
     {
         $department = Department::findOrFail($id);

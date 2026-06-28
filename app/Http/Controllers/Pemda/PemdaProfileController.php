@@ -12,9 +12,6 @@ use Illuminate\Validation\Rules\Password;
 
 class PemdaProfileController extends Controller
 {
-    /**
-     * Tampilkan halaman profile user pemda.
-     */
     public function index()
     {
         $user = Auth::user()->load('departments');
@@ -24,10 +21,6 @@ class PemdaProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update data profile (nama, email, phone, avatar, password).
-     * Department TIDAK bisa diubah dari sini (read-only).
-     */
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -43,12 +36,10 @@ class PemdaProfileController extends Controller
             'current_password.current_password' => 'Password saat ini yang Anda masukkan salah.',
         ]);
 
-        // Update data dasar
         $user->name  = $validated['name'];
         $user->email = $validated['email'];
         $user->phone = $validated['phone'] ?? null;
 
-        // Upload avatar baru jika ada
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
@@ -58,7 +49,6 @@ class PemdaProfileController extends Controller
             $user->avatar = $path;
         }
 
-        // Update password jika diisi
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }

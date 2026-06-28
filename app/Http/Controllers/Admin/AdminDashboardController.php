@@ -14,7 +14,6 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // ── Stat cards ──────────────────────────────────────────
         $totalReports     = Report::count();
         $active          = Report::where('status', 'active')->count();
         $process          = Report::where('status', 'process')->count();
@@ -25,7 +24,6 @@ class AdminDashboardController extends Controller
         $totalDepartments = Department::count();
         $bannedUsers      = User::where('status', 'banned')->count();
 
-        // ── Line chart: laporan per hari (30 hari terakhir) ─────
         $chartReports = Report::select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(*) as total')
@@ -35,7 +33,6 @@ class AdminDashboardController extends Controller
             ->orderBy('date')
             ->get();
 
-        // ── Doughnut: status ────────────────────────────────────
         $statusChartData = [
             'active'  => $active,
             'process'  => $process,
@@ -43,7 +40,6 @@ class AdminDashboardController extends Controller
             'rejected' => $rejected,
         ];
 
-        // ── Bar chart: laporan per dinas ────────────────────────
         $departmentChartData = Department::select(
                 'departments.id',
                 'departments.name',
@@ -55,25 +51,21 @@ class AdminDashboardController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        // ── Doughnut: top 5 kategori ────────────────────────────
         $topCategories = ProblemCategory::withCount('reports')
             ->orderByDesc('reports_count')
             ->limit(5)
             ->get(['id', 'name', 'reports_count']);
 
-        // ── Tabel: laporan terbaru (10) ─────────────────────────
         $latestReports = Report::with(['images', 'category', 'department'])
             ->latest()
             ->limit(10)
             ->get();
 
-        // ── Laporan prioritas: top 5 votes ──────────────────────
         $priorityReports = Report::with(['category', 'department'])
             ->orderByDesc('votes_count')
             ->limit(5)
             ->get();
 
-        // ── Performa per dinas ──────────────────────────────────
         $departmentStats = Department::select(
                 'departments.id',
                 'departments.name',
@@ -86,13 +78,11 @@ class AdminDashboardController extends Controller
             ->orderByDesc('total_reports')
             ->get();
 
-                // ── Pengguna terbaru (5) ────────────────────────────────
             $latestUsers = User::where('role', 'warga')
             ->latest()
             ->limit(5)
             ->get();
 
-        // ── Audit log: report_updates terbaru (10) ───────────────
         $recentActivities = ReportUpdate::with(['report', 'updatedBy'])
             ->latest()
             ->limit(10)

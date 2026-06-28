@@ -377,7 +377,7 @@
                     <a href="{{ route('pemda.profile') }}"
                     class="{{ request()->routeIs('pemda.profile') ? 'active' : '' }}">
                         <i class="fas fa-user"></i>
-                        <span>Profil</span>
+                        <span>Profile</span>
                     </a>
                 </li>
 

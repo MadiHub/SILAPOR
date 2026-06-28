@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminAuditLogController extends Controller
 {
-    // -------------------------------------------------------
-    // INDEX  –  semua aktivitas terbaru
-    // -------------------------------------------------------
     public function index(Request $request)
     {
         $query = ReportUpdate::with(['report', 'updatedBy'])
@@ -45,7 +42,6 @@ class AdminAuditLogController extends Controller
 
         $logs = $query->paginate(20)->withQueryString();
 
-        // Stats
         $stats = [
             'total'        => ReportUpdate::count(),
             'today'        => ReportUpdate::whereDate('created_at', today())->count(),
@@ -55,7 +51,6 @@ class AdminAuditLogController extends Controller
                                           ->count('updated_by'),
         ];
 
-        // Untuk dropdown filter by user (hanya yang pernah update)
         $staffList = User::whereIn('id',
             ReportUpdate::distinct()->pluck('updated_by')->filter()
         )->orderBy('name')->get();
@@ -63,9 +58,6 @@ class AdminAuditLogController extends Controller
         return view('Admin.AuditLogs.index', compact('logs', 'stats', 'staffList'));
     }
 
-    // -------------------------------------------------------
-    // BY USER  –  semua aktivitas seorang user
-    // -------------------------------------------------------
     public function byUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -87,13 +79,9 @@ class AdminAuditLogController extends Controller
             'rejected'  => ReportUpdate::where('updated_by', $id)->where('status', 'rejected')->count(),
         ];
 
-        // last login
         return view('Admin.AuditLogs.by_user', compact('user', 'logs', 'userStats'));
     }
 
-    // -------------------------------------------------------
-    // BY REPORT  –  semua update satu laporan
-    // -------------------------------------------------------
     public function byReport(Request $request, $id)
     {
         $report = Report::with(['user', 'department', 'category'])->findOrFail($id);

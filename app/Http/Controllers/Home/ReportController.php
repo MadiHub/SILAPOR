@@ -17,7 +17,6 @@ class ReportController extends Controller
 {
     public function index()
     {
-        // INSTANSI FOOTER
         $userId = auth()->id();
  
         $reports = Report::with(['images', 'category', 'user', 'votes'])
@@ -73,11 +72,9 @@ class ReportController extends Controller
 
         try {
 
-            // ambil category + department otomatis
             $category = ProblemCategory::with('department')
                 ->findOrFail($request->category_id);
 
-            // 1. CREATE REPORT
             $report = Report::create([
                 'user_id' => auth()->id(),
                 'category_id' => $category->id,
@@ -91,7 +88,6 @@ class ReportController extends Controller
                 'votes_count' => 0,
             ]);
 
-            // 2. UPLOAD IMAGES (jika ada)
             if ($request->hasFile('images')) {
 
                 foreach ($request->file('images') as $file) {
@@ -124,47 +120,6 @@ class ReportController extends Controller
         }
     }
 
-    // public function vote($id)
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Harus login dulu!'
-    //         ], 401);
-    //     }
-
-    //     $userId = Auth::id();
-
-    //     $report = Report::findOrFail($id);
-
-    //     $existingVote = ReportVote::where('user_id', $userId)
-    //         ->where('report_id', $id)
-    //         ->first();
-
-    //     if ($existingVote) {
-    //         $existingVote->delete();
-
-    //         $report->decrement('votes_count');
-
-    //         return response()->json([
-    //             'status' => 'unvoted',
-    //             'votes' => $report->votes_count
-    //         ]);
-    //     } else {
-    //         // 🔺 VOTE
-    //         ReportVote::create([
-    //             'user_id' => $userId,
-    //             'report_id' => $id
-    //         ]);
-
-    //         $report->increment('votes_count');
-
-    //         return response()->json([
-    //             'status' => 'voted',
-    //             'votes' => $report->votes_count
-    //         ]);
-    //     }
-    // }
     public function vote($id)
     {
         if (!Auth::check()) {
@@ -192,7 +147,6 @@ class ReportController extends Controller
             $status = 'voted';
         }
 
-        // ✅ Hitung langsung dari tabel votes, bukan increment/decrement
         $actualCount = ReportVote::where('report_id', $id)->count();
         $report->update(['votes_count' => $actualCount]);
 
@@ -204,9 +158,6 @@ class ReportController extends Controller
 
     public function myReports(Request $request)
     {
-        // INSTANSI FOOTER
-        $departments = Department::all();
-
         $reports = Report::with([
                 'images',
                 'category',
@@ -239,7 +190,6 @@ class ReportController extends Controller
 
         return view('Home.Reports.my_report', [
             'reports' => $reports,
-            'departments' => $departments,
         ]);
     }
 
@@ -249,7 +199,6 @@ class ReportController extends Controller
             ->where('user_id', auth()->id())
             ->findOrFail($id);
     
-        // guard: status selain active gak boleh diedit
         if ($report->status !== 'active') {
             return redirect()
                 ->route('reports.me')
@@ -261,18 +210,12 @@ class ReportController extends Controller
         return view('Home.Reports.edit', compact('report', 'problem_categories'));
     }
     
-    /**
-     * Update laporan.
-     * Validasi sama seperti store, TAPI tanpa wajib lat/lng/address
-     * (lokasi dipertahankan dari data lama).
-     */
     public function update(Request $request, $id)
     {
         $report = Report::with('images')
             ->where('user_id', auth()->id())
             ->findOrFail($id);
     
-        // guard: status selain active gak boleh diupdate
         if ($report->status !== 'active') {
             return redirect()
                 ->route('reports.me')
@@ -285,12 +228,10 @@ class ReportController extends Controller
             'description'         => 'required|string|max:1000',
             'images'              => 'nullable|array|max:10',
             'images.*'            => 'image|mimes:jpg,jpeg,png,webp|max:10240',
-            // id foto lama yang mau dipertahankan (sisanya dianggap dihapus)
             'existing_images'     => 'nullable|array',
             'existing_images.*'   => 'integer|exists:report_images,id',
         ]);
     
-        // validasi jumlah total foto (lama yg dipertahankan + baru) maks 10
         $keepCount = is_array($request->existing_images) ? count($request->existing_images) : 0;
         $newCount  = $request->hasFile('images') ? count($request->file('images')) : 0;
     
@@ -307,7 +248,6 @@ class ReportController extends Controller
             $category = ProblemCategory::with('department')
                 ->findOrFail($request->category_id);
     
-            // 1. UPDATE DATA LAPORAN (lokasi TIDAK diubah)
             $report->update([
                 'category_id'    => $category->id,
                 'department_id'  => $category->department_id,
@@ -315,7 +255,6 @@ class ReportController extends Controller
                 'description'    => $request->description,
             ]);
     
-            // 2. HAPUS FOTO YANG TIDAK ADA DI existing_images (artinya dihapus user)
             $keepIds = $request->existing_images ?? [];
     
             $imagesToDelete = $report->images->whereNotIn('id', $keepIds);
@@ -325,7 +264,6 @@ class ReportController extends Controller
                 $img->delete();
             }
     
-            // 3. UPLOAD FOTO BARU (jika ada)
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $file) {
                     $path = $file->store('reports', 'public');
@@ -356,10 +294,6 @@ class ReportController extends Controller
         }
     }
     
-    /**
-     * Hapus laporan beserta foto-fotonya.
-     * Hanya laporan milik sendiri & berstatus 'active'.
-     */
     public function destroy($id)
     {
         $report = Report::with('images')
@@ -376,12 +310,10 @@ class ReportController extends Controller
     
         try {
     
-            // hapus semua file foto dari storage
             foreach ($report->images as $img) {
                 Storage::disk('public')->delete($img->image_url);
             }
     
-            // hapus relasi foto (kalau tidak ada onDelete cascade di migration)
             $report->images()->delete();
     
             $report->delete();

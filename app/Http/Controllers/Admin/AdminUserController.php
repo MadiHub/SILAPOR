@@ -118,9 +118,6 @@ class AdminUserController extends Controller
         return view('Admin.Users.show', compact('user', 'reportStats', 'departments'));
     }
 
-    // -------------------------------------------------------
-    // EDIT
-    // -------------------------------------------------------
     public function edit($id)
     {
         $user        = User::with('departments')->findOrFail($id);
@@ -128,9 +125,6 @@ class AdminUserController extends Controller
         return view('Admin.Users.edit', compact('user', 'departments'));
     }
 
-    // -------------------------------------------------------
-    // UPDATE
-    // -------------------------------------------------------
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -162,7 +156,6 @@ class AdminUserController extends Controller
 
         $user->update($validated);
 
-        // Sync departments
         $user->departments()->detach();
         if (!empty($validated['department_ids'])) {
             foreach ($validated['department_ids'] as $deptId) {
@@ -174,9 +167,6 @@ class AdminUserController extends Controller
                          ->with('success', 'Data pengguna berhasil diperbarui.');
     }
 
-    // -------------------------------------------------------
-    // DESTROY
-    // -------------------------------------------------------
     public function destroy($id)
     {
         $user = User::findOrFail($id);
@@ -191,9 +181,6 @@ class AdminUserController extends Controller
                          ->with('success', 'Pengguna berhasil dihapus.');
     }
 
-    // -------------------------------------------------------
-    // STATUS CHANGES
-    // -------------------------------------------------------
     public function ban($id)
     {
         $user = User::findOrFail($id);
@@ -215,9 +202,6 @@ class AdminUserController extends Controller
         return back()->with('success', "Pengguna {$user->name} telah disuspend.");
     }
 
-    // -------------------------------------------------------
-    // ROLE CHANGE
-    // -------------------------------------------------------
     public function changeRole(Request $request, $id)
     {
         $request->validate(['role' => 'required|in:admin,warga,pemda']);
@@ -228,9 +212,6 @@ class AdminUserController extends Controller
         return back()->with('success', "Role pengguna {$user->name} diubah menjadi {$request->role}.");
     }
 
-    // -------------------------------------------------------
-    // DEPARTMENT MANAGEMENT
-    // -------------------------------------------------------
     public function assignDepartment(Request $request, $id)
     {
         $request->validate(['department_id' => 'required|exists:departments,id']);

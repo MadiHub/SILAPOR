@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminReportController extends Controller
 {
-    // -------------------------------------------------------
-    // INDEX  –  list + filter + search
-    // -------------------------------------------------------
     public function index(Request $request)
     {
         $query = Report::with(['user', 'department', 'category', 'images'])
@@ -49,7 +46,6 @@ class AdminReportController extends Controller
             $query->whereDate('created_at', '<=', $dateTo);
         }
 
-        // sort
         $sort = $request->input('sort', 'latest');
         match ($sort) {
             'votes'   => $query->orderByDesc('votes_count'),
@@ -71,9 +67,6 @@ class AdminReportController extends Controller
         return view('Admin.Reports.index', compact('reports', 'departments', 'stats'));
     }
 
-    // -------------------------------------------------------
-    // SHOW
-    // -------------------------------------------------------
     public function show($id)
     {
         $report = Report::with([
@@ -90,14 +83,10 @@ class AdminReportController extends Controller
         return view('Admin.Reports.show', compact('report', 'departments'));
     }
 
-    // -------------------------------------------------------
-    // DESTROY
-    // -------------------------------------------------------
     public function destroy($id)
     {
         $report = Report::with('images')->findOrFail($id);
 
-        // Hapus semua gambar dari storage
         foreach ($report->images as $img) {
             Storage::disk('public')->delete($img->image_url);
         }
@@ -109,9 +98,6 @@ class AdminReportController extends Controller
                          ->with('success', "Laporan \"{$title}\" berhasil dihapus.");
     }
 
-    // -------------------------------------------------------
-    // OVERRIDE STATUS  →  tabel: report_updates
-    // -------------------------------------------------------
     public function overrideStatus(Request $request, $id)
     {
         $request->validate([
@@ -133,9 +119,6 @@ class AdminReportController extends Controller
         return back()->with('success', "Status laporan diubah ke \"{$request->status}\".");
     }
 
-    // -------------------------------------------------------
-    // REASSIGN DINAS  →  kolom: reports.department_id
-    // -------------------------------------------------------
     public function reassign(Request $request, $id)
     {
         $request->validate([
@@ -159,9 +142,6 @@ class AdminReportController extends Controller
         return back()->with('success', "Laporan dipindahkan ke dinas {$newDept->name}.");
     }
 
-    // -------------------------------------------------------
-    // ADD PROGRESS  →  tabel: report_updates
-    // -------------------------------------------------------
     public function addProgress(Request $request, $id)
     {
         $request->validate([
