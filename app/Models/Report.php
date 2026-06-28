@@ -53,4 +53,35 @@ class Report extends Model
     {
         return $this->hasMany(ReportComment::class);
     }
+
+    
+    // ── Helpers ──────────────────────────────────────────────
+ 
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            'active'   => '#f59e0b',
+            'process'  => '#3b82f6',
+            'done'     => '#10b981',
+            'rejected' => '#ef4444',
+            default    => '#777',
+        };
+    }
+ 
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'active'   => 'Aktif',
+            'process'  => 'Diproses',
+            'done'     => 'Selesai',
+            'rejected' => 'Ditolak',
+            default    => $this->status,
+        };
+    }
+ 
+    public function getFirstImageUrlAttribute(): ?string
+    {
+        $img = $this->images->first();
+        return $img ? asset('storage/' . $img->image_url) : null;
+    }
 }

@@ -75,11 +75,19 @@
                 </div>
                 <div style="grid-column: 1/-1;">
                     <div style="font-size:0.78em; color:#999; text-transform:uppercase; margin-bottom:3px;">Lokasi</div>
-                    <div style="font-weight:500; color:var(--text-dark);">
+                    <div style="font-weight:500; color:var(--text-dark); margin-bottom:10px;">
                         <i class="fas fa-map-marker-alt" style="color:var(--primary-color); margin-right:5px;"></i>
                         {{ $report->address }}
                     </div>
+                    
                     @if($report->latitude && $report->longitude)
+                        <div style="border-radius:8px; overflow:hidden; height:260px; background:var(--background-light); py-5;">
+                            <iframe
+                                src="https://maps.google.com/maps?q={{ $report->latitude }},{{ $report->longitude }}&z=16&output=embed"
+                                style="width:100%; height:100%; border:none;"
+                                loading="lazy">
+                            </iframe>
+                        </div>
                         <a href="https://maps.google.com/?q={{ $report->latitude }},{{ $report->longitude }}"
                            target="_blank"
                            style="display:inline-block; margin-top:8px; font-size:0.82em; color:var(--primary-color); text-decoration:none;">

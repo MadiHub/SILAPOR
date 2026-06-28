@@ -169,7 +169,7 @@ body {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">description Masalah <span
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Deskripsi Masalah <span
                             class="text-red-500">*</span></label>
                     <textarea id="description" name="description" maxlength="1000" rows="4"
                         placeholder="Jelaskan masalah secara rinci — kapan terjadi, dampak yang ditimbulkan, kondisi saat ini, dan informasi penting lainnya..."

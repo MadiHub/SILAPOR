@@ -20,26 +20,26 @@ class ReportController extends Controller
         // INSTANSI FOOTER
         $userId = auth()->id();
  
-        $reports = Report::with(['images', 'category', 'user'])
-            ->withCount('votes')
-            ->latest()
-            ->paginate(9)
-            ->through(function ($report) use ($userId) {
-                return [
-                    'id'            => $report->id,
-                    'title'         => $report->title,
-                    'description'   => $report->description,
-                    'address'       => $report->address,
-                    'status'        => $report->status,
-                    'votes_count'   => $report->votes_count,
-                    'is_voted'      => $report->votes->contains('user_id', $userId),
-                    'comments_count'=> $report->comments_count ?? 0,
-                    'created_at'    => $report->created_at,
-                    'category'      => $report->category,
-                    'images'        => $report->images,
-                    'user'          => $report->user,
-                ];
-            });
+        $reports = Report::with(['images', 'category', 'user', 'votes'])
+        ->withCount('votes')
+        ->latest()
+        ->paginate(9)
+        ->through(function ($report) use ($userId) {
+            return [
+                'id'             => $report->id,
+                'title'          => $report->title,
+                'description'    => $report->description,
+                'address'        => $report->address,
+                'status'         => $report->status,
+                'votes_count'    => $report->votes_count,
+                'is_voted'       => $report->votes->contains('user_id', $userId),
+                'comments_count' => $report->comments_count ?? 0,
+                'created_at'     => $report->created_at,
+                'category'       => $report->category,
+                'images'         => $report->images,
+                'user'           => $report->user,
+            ];
+        });
     
         return view('Home.Reports.index', compact('reports'));
     }
@@ -124,17 +124,57 @@ class ReportController extends Controller
         }
     }
 
+    // public function vote($id)
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Harus login dulu!'
+    //         ], 401);
+    //     }
+
+    //     $userId = Auth::id();
+
+    //     $report = Report::findOrFail($id);
+
+    //     $existingVote = ReportVote::where('user_id', $userId)
+    //         ->where('report_id', $id)
+    //         ->first();
+
+    //     if ($existingVote) {
+    //         $existingVote->delete();
+
+    //         $report->decrement('votes_count');
+
+    //         return response()->json([
+    //             'status' => 'unvoted',
+    //             'votes' => $report->votes_count
+    //         ]);
+    //     } else {
+    //         // 🔺 VOTE
+    //         ReportVote::create([
+    //             'user_id' => $userId,
+    //             'report_id' => $id
+    //         ]);
+
+    //         $report->increment('votes_count');
+
+    //         return response()->json([
+    //             'status' => 'voted',
+    //             'votes' => $report->votes_count
+    //         ]);
+    //     }
+    // }
     public function vote($id)
     {
         if (!Auth::check()) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Harus login dulu!'
             ], 401);
         }
 
         $userId = Auth::id();
-
         $report = Report::findOrFail($id);
 
         $existingVote = ReportVote::where('user_id', $userId)
@@ -143,27 +183,23 @@ class ReportController extends Controller
 
         if ($existingVote) {
             $existingVote->delete();
-
-            $report->decrement('votes_count');
-
-            return response()->json([
-                'status' => 'unvoted',
-                'votes' => $report->votes_count
-            ]);
+            $status = 'unvoted';
         } else {
-            // 🔺 VOTE
             ReportVote::create([
-                'user_id' => $userId,
+                'user_id'   => $userId,
                 'report_id' => $id
             ]);
-
-            $report->increment('votes_count');
-
-            return response()->json([
-                'status' => 'voted',
-                'votes' => $report->votes_count
-            ]);
+            $status = 'voted';
         }
+
+        // ✅ Hitung langsung dari tabel votes, bukan increment/decrement
+        $actualCount = ReportVote::where('report_id', $id)->count();
+        $report->update(['votes_count' => $actualCount]);
+
+        return response()->json([
+            'status' => $status,
+            'votes'  => $actualCount
+        ]);
     }
 
     public function myReports(Request $request)

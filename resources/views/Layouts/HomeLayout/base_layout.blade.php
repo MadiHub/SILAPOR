@@ -467,8 +467,19 @@
             justify-content: center;
         }
 
+        /* divider tetap */
         .stat-box:not(:last-child) {
             border-right: 1px solid rgba(255,255,255,0.15);
+        }
+
+        /* teks dibikin auto kontras */
+        .sb-text h3 {
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+        }
+
+        .sb-text p {
+            color: rgba(255,255,255,0.85);
         }
 
         .sb-icon {
@@ -494,6 +505,39 @@
             font-size: 12px;
             margin-top: 2px;
         }
+
+    
+     @media (max-width: 768px) {
+
+        .summary-stats-bar {
+            background: #ffffff; /* solid aja */
+        }
+
+        .stat-box {
+            justify-content: flex-start;
+        }
+
+        .sb-text h3 {
+            color: #111827; /* dark grey, lebih soft dari hitam */
+            text-shadow: none;
+        }
+
+        .sb-text p {
+            color: #6b7280; /* abu biar ga terlalu kontras */
+            text-shadow: none;
+        }
+
+        .sb-icon {
+            color: #374151;
+            background-color: #f3f4f6; /* abu soft */
+            border: none;
+            backdrop-filter: none;
+        }
+
+        .stat-box:not(:last-child) {
+            border-right: 1px solid #e5e7eb; /* divider clean */
+        }
+    }
 
         /* --- 3. Map Section Layout System --- */
         .map-section-wrapper {
@@ -1315,8 +1359,20 @@
             .footer-top-section { grid-template-columns: 1fr; }
             .footer-bottom-copyright { flex-direction: column; text-align: center; }
         }
+/* 
+        .fab-wrapper {
+            display: none;
+        }
 
-
+        @media (max-width: 768px) {
+            .fab-wrapper {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 999;
+            }
+        } */
     </style>
 </head>
 <body>
@@ -1344,16 +1400,8 @@
             </div>
             <ul class="nav-links">
                 <li><a href="{{ route('home.index') }}" class="active">Beranda</a></li>
-                <li class="dropdown">
-                    <a href="#">Layanan <i class="fa-solid fa-chevron-down"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ route('reports.create') }}">Buat Laporan</a></li>
-                        <li><a href="#map-section">Status Bencana</a></li>
-                        <li><a href="#map-section">Peta Insiden</a></li>
-                    </ul>
-                </li>
                 <li><a href="{{ route('reports.me') }}">Laporan</a></li>
-                <li><a href="#">Statistik</a></li>
+                <li><a href="{{ route('statistics') }}">Statistik</a></li>
                 <li><a href="{{ route('home.about') }}">Tentang</a></li>
             </ul>
             <div class="nav-actions">
@@ -1387,7 +1435,7 @@
                     <div id="user-dropdown-menu" class="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-30">
                         <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
                         @if(Auth::check() && Auth::user()->role === 'admin')
-                            <a href="" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
                         @endif
                         <form action="{{ route('auth.logout') }}" method="POST" class="w-full">
                         @csrf
@@ -1398,8 +1446,9 @@
                     @endauth
 
                     @guest
-                    <a href="{{ route('auth') }}" class="btn-lapor header-btn">
-                    Login
+                    <a href="{{ route('auth') }}" 
+                        class="block md:inline-block bg-[var(--sys-red)] text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+                        Login
                     </a>
                     @endguest
             </div>
@@ -1408,31 +1457,50 @@
 
   <main>
     @yield('content')
+    <!-- Menu List -->
     <div class="fab-wrapper" id="fabArea">
         <div class="fab-menu-list" id="fabMenuList">
+
             <div class="fab-menu-item">
-                <span class="fab-label">Lapor Darurat</span>
-                <button class="fab-sub-btn red-fab"><i class="fa-solid fa-triangle-exclamation"></i></button>
+                <span class="fab-label">Beranda</span>
+                <a href="{{ route('home.index') }}" class="fab-sub-btn dark-fab">
+                    <i class="fa-solid fa-house"></i>
+                </a>
             </div>
+
             <div class="fab-menu-item">
-                <span class="fab-label">Foto Kerusakan</span>
-                <button class="fab-sub-btn orange-fab"><i class="fa-solid fa-camera"></i></button>
+                <span class="fab-label">Laporan</span>
+                <a href="{{ route('reports.me') }}" class="fab-sub-btn blue-fab">
+                    <i class="fa-solid fa-file-lines"></i>
+                </a>
             </div>
+
             <div class="fab-menu-item">
-                <span class="fab-label">Tandai Lokasi</span>
-                <button class="fab-sub-btn blue-fab"><i class="fa-solid fa-location-crosshairs"></i></button>
+                <span class="fab-label">Statistik</span>
+                <a href="{{ route('statistics') }}" class="fab-sub-btn orange-fab">
+                    <i class="fa-solid fa-chart-simple"></i>
+                </a>
             </div>
+
+            <div class="fab-menu-item">
+                <span class="fab-label">Tentang</span>
+                <a href="{{ route('home.about') }}" class="fab-sub-btn green-fab">
+                    <i class="fa-solid fa-circle-info"></i>
+                </a>
+            </div>
+
+            <!-- tetap bisa lu tambahin fitur utama -->
             <div class="fab-menu-item">
                 <span class="fab-label">Buat Laporan</span>
-                <a href="{{ route('reports.create') }}" class="fab-sub-btn dark-fab"><i class="fa-regular fa-file-lines"></i></a>
+                <a href="{{ route('reports.create') }}" class="fab-sub-btn red-fab">
+                    <i class="fa-solid fa-plus"></i>
+                </a>
             </div>
-            <div class="fab-menu-item">
-                <span class="fab-label">Hubungi 112</span>
-                <button class="fab-sub-btn green-fab"><i class="fa-solid fa-phone"></i></button>
-            </div>
+
         </div>
+
         <button class="fab-main-trigger" id="fabTrigger">
-            <i class="fa-solid fa-plus icon-plus"></i>
+            <i class="fa-solid fa-bars icon-plus"></i>
         </button>
     </div>
   </main>

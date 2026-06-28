@@ -144,7 +144,19 @@
                         <tr style="border-bottom:1px solid var(--background-light);">
                             <td style="padding:12px 10px;">
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <img src="{{ $user->avatar_url }}"
+                                    @php
+                                        $avatarPath = $user->avatar;
+
+                                        if ($avatarPath && !str_contains($avatarPath, 'http')) {
+                                            // kalau dia sudah ada 'storage/' jangan ditambah lagi
+                                            $avatarUrl = str_contains($avatarPath, 'storage/')
+                                                ? asset($avatarPath)
+                                                : asset('storage/' . $avatarPath);
+                                        } else {
+                                            $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=133a68&color=fff';
+                                        }
+                                    @endphp
+                                    <img src="{{ $avatarUrl }}"
                                          style="width:38px; height:38px; border-radius:50%; object-fit:cover; flex-shrink:0;">
                                     <div>
                                         <a href="{{ route('admin.users.show', $user->id) }}"

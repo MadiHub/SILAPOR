@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UrbanAksi-Login</title>
+    <title>SILAPOR-Login</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -178,7 +178,7 @@
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
                         <label class="input-label mb-0">Password</label>
-                        <a href="#" class="forgot-password-link">Lupa password?</a>
+                        <a href="{{ route('password.request') }}" class="forgot-password-link">Lupa password?</a>
                     </div>
                     <div class="input-wrapper">
                         <span class="input-icon">

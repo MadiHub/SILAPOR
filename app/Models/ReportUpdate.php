@@ -11,9 +11,9 @@ class ReportUpdate extends Model
 
     protected $table = 'report_updates';
     protected $casts = [
-    'created_at' => 'datetime',
-    'updated_at' => 'datetime',
-];
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     protected $fillable = [
         'report_id',

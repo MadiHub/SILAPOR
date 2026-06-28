@@ -323,14 +323,6 @@
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('admin.stats.export') }}"
-                       class="{{ request()->routeIs('admin.stats.export') ? 'active' : '' }}">
-                        <i class="fas fa-download"></i>
-                        <span>Export Data</span>
-                    </a>
-                </li>
-
                 {{-- SISTEM --}}
                 <li class="sidebar-group-label">Sistem</li>
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Home\ReportController;
 
@@ -14,6 +15,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDepartmentController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\AdminStatsController;
+use App\Http\Controllers\Admin\AdminAuditLogController;
 
 use App\Http\Controllers\Api\LocationController;
 
@@ -28,17 +31,25 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
 Route::put('/profile', [AuthController::class, 'profileUpdate'])->name('profile.update');
 
+// FORGOT PASSWORD ROUTES
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('password.send-otp');
+Route::get('/verify-otp', [ForgotPasswordController::class, 'showOtpForm'])->name('password.verify-otp');
+Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.check-otp');
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset-form');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+
 // GUEST ROUTE
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/about', [HomeController::class, 'about'])->name('home.about');
-Route::get('/statistik', [HomeController::class, 'statistics'])->name('statistics');
+Route::get('/statistics', [HomeController::class, 'statistics'])->name('statistics');
 
 // POLLYGON API
 Route::get('/api/polygon/get', [LocationController::class, 'polygon']);
 
 // REPORTS ROUTE
+Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::middleware('warga')->prefix('reports')->name('reports.')->group(function () {
-    Route::get('/', [ReportController::class, 'index'])->name('index');
     Route::get('/create', [ReportController::class, 'create'])->name('create');
     Route::post('/', [ReportController::class, 'store'])->name('store');
     Route::post('/{id}/vote', [ReportController::class, 'vote'])->name('vote');

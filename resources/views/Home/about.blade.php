@@ -1,6 +1,6 @@
 @extends('Layouts.HomeLayout.base_layout')
 
-@section('title', 'Tentang SiLapor - Sistem Laporan Darurat Bekasi')
+@section('title', 'Tentang SiLapor - Sistem Laporan Darurat')
 
 @section('content')
 
